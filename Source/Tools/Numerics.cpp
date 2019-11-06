@@ -1,41 +1,42 @@
 #include "Numerics.hh"
+#include <iostream>
 
-
-double Numerics::simpsons(double* variable, double* integrand, int size)
+double Numerics::simpsons(const Vector<double>& variable,
+    const Vector<double>& integrand)
 {
-    double deltaX = (variable[size-1] - variable[0]) / (size);
+    double deltaX = (*variable.end() - variable[0]) / (variable.size());
     double integral = integrand[0];
-    for (int i = 1; i < size - 1; i += 2)
+    for (int i = 1; i < variable.size() - 1; i += 2)
     {
         integral += 4.0 * integrand[i];
     }
-    for (unsigned int i = 2; i < size - 2; i += 2)
+    for (int i = 2; i < variable.size() - 2; i += 2)
     {
         integral += 2.0 * integrand[i];
     }
-    integral += integrand[size-1];
+    integral += *integrand.end();
 
     return (integral * deltaX / 3.0);
-
 }
 
-double Numerics::interpolate1D(double* sampleX, double* sampleY,
-            int sampleSize, double queryX)
+double Numerics::interpolate1D(const Vector<double>& sampleX,
+    const Vector<double>& sampleY, double queryX)
 {
     // Get the closest points
+    int sampleSize = sampleX.size();
     int closestIndex[2];
     if (queryX < sampleX[0])
     {
         std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl
+            << std::endl;
         closestIndex[0] = 0;
         closestIndex[1] = 1;
-    } else if (queryX > sampleX[sampleSize[0]-1])
+    } else if (queryX > *sampleX.end())
     {
         std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl
-        closestIndex[0] = sampleSize[0] - 2;
-        closestIndex[1] = sampleSize[0] - 1;      
+            << std::endl;
+        closestIndex[0] = sampleSize - 2;
+        closestIndex[1] = sampleSize - 1;      
     } else
     {
         for (int i = 0; i < sampleSize; i++)
@@ -55,21 +56,23 @@ double Numerics::interpolate1D(double* sampleX, double* sampleY,
     return 1.0 / (x2 - x1) * (y1 * (x2 - queryX) + y2 * (queryX - x1));
 }
 
-double Numerics::interpolate2D(double* sampleX, double* sampleY,
-    double** sampleZ, int sampleSize[2], double queryPoint[2])
+double Numerics::interpolate2D(const Vector<double>& sampleX,
+    const Vector<double>& sampleY, Matrix<double> sampleZ,
+    double queryPoint[2])
 {
     // Get the closest points
+    int sampleSize[2] = {sampleX.size(), sampleY.size()};
     int closestIndexX[2];
     if (queryPoint[0] < sampleX[0])
     {
         std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl
+            << std::endl;
         closestIndexX[0] = 0;
         closestIndexX[1] = 1;
-    } else if (queryPoint[0] > sampleX[sampleSize[0]-1])
+    } else if (queryPoint[0] > *sampleX.end())
     {
         std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl
+            << std::endl;
         closestIndexX[0] = sampleSize[0] - 2;
         closestIndexX[1] = sampleSize[0] - 1;      
     } else
@@ -88,13 +91,13 @@ double Numerics::interpolate2D(double* sampleX, double* sampleY,
     if (queryPoint[1] < sampleY[0])
     {
         std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl
+            << std::endl;
         closestIndexY[0] = 0;
         closestIndexY[1] = 1;
-    } else if (queryPoint[1] > sampleX[sampleSize[1]-1])
+    } else if (queryPoint[1] > *sampleX.end())
     {
         std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl
+            << std::endl;
         closestIndexY[0] = sampleSize[1] - 2;
         closestIndexY[1] = sampleSize[1] - 1;
     } else

@@ -1,18 +1,22 @@
 #ifndef Numerics_HH
 #define Numerics_HH
 
+#include "Vector.hh"
+#include "Matrix.hh"
+
 namespace Numerics
 {
-
     /* Basic simpsons method for integration */
-    double simpsons(double* variable, double* integrand, int resolusion);
+    double simpsons(const Vector<double>& variable,
+        const Vector<double>& integrand);
 
     /* Basic linear intepolation method in 1D */
-    double interpolate1D(double* sampleX, double* sampleY,
-            int sampleSize, double queryX);
+    double interpolate1D(const Vector<double>& sampleX,
+        const Vector<double>& sampleY, double queryX);
 
     /* Basic linear intepolation method in 2D */
-    double interpolate2D(double* sampleX, double* sampleY, double** sampleZ,
-            int sampleSize[2], double queryPoint[2]);
+    double interpolate2D(const Vector<double>& sampleX,
+        const Vector<double>& sampleY, Matrix<double> sampleZ,
+        double queryPoint[2]);
 }
 #endif
