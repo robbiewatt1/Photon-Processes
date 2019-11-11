@@ -59,15 +59,24 @@ protected:
 
 protected:
     /* Samples the energy, angle from the photon field */
-    void SamplePhotonField(PhotonField* field, double gammaEnergy,
-            double& photonEnergy, double& comEnergy, double& photonPhi);
+    void samplePhotonField(int blockID, double gammaEnergy, double& photonEnergy,
+        double& comEnergy, double& photonPhi);
 
-    /* Sampeles a scattering angle from the differential cross-section */
+    /* Sampeles a scattering angle from the differential cross-section.
+       Assumes scattering is maximum on axis.  */
     double samplePairAngle(double comEnergy);
 
+    /* returns the values of theta and phi in the rotated frame.
+       angleIn = [theta, phi] angleOut = [theta, phi]*/
+    void rotateThetaPhi(double angleIn[2], double angleOut[2],
+        const G4RotationMatrix& rotaion);
+
 private:
-    PhotonField* m_field;   // static X ray field
-    double m_comMin;        // Min COM energy of interest
+    PhotonField* m_field;      // static X ray field
+    double m_comMin;           // Min COM energy of interest
+    double m_minDensity;       // Min angula density of interest
+    G4RotationMatrix m_rotaion; // Rotation matrix to gamma frame
+
 #ifdef USEGP
     double m_errorMax;       // Max eroor before using GP
     bool m_save;             // Bool deciding if GP is saved
