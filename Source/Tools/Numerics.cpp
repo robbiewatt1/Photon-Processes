@@ -1,6 +1,31 @@
 #include "Numerics.hh"
 #include <iostream>
 
+int Numerics::vectorIndex(const Vector<double>& vector, double value)
+{
+    int index;
+    if (value < vector[0])
+    {
+        index = 0;
+    } else if (value > *vector.end())
+    {
+        index = vector.size() - 1;
+    } else
+    {
+        for (int i = 0; i < vector.size(); i++)
+        {
+            if (samplePoints[i] > value)
+            {
+                double closest = vector[i] + vector[i-1]
+                        - 2.0 * value;
+                index = closest > 0 ? (i - 1) : i;
+                break;
+            }
+        }
+    }
+    return index;
+}
+
 double Numerics::simpsons(const Vector<double>& variable,
     const Vector<double>& integrand)
 {
