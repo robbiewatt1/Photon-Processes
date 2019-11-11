@@ -100,10 +100,17 @@ void GaussianProcess::setNormParams(const Vector<double>& inputNorm,
 void GaussianProcess::run(int gpID, const Vector<double>& input,
     double output[2])
 {
-    for (int i = 0; i < m_inputSize; ++i) input[i] /= m_inputNorm[i];
-    output[0] = m_gausProc[gpID]->f(input.begin()) / m_outputNorm;
-    output[1] = m_gausProc[gpID]->var(input.begin())
-        / (m_outputNorm * m_outputNorm);
+    if (!m_switch[gpID])
+    {   // Not trained yet
+        output[0] = 0;
+        output[1] = 1e99;
+    } else
+    {
+        for (int i = 0; i < m_inputSize; ++i) input[i] /= m_inputNorm[i];
+        output[0] = m_gausProc[gpID]->f(input.begin()) / m_outputNorm;
+        output[1] = m_gausProc[gpID]->var(input.begin())
+            / (m_outputNorm * m_outputNorm);
+    }
 }
 
 void GaussianProcess::addData(int gpID, const Vector<double>& input,
