@@ -14,7 +14,7 @@ int Numerics::vectorIndex(const Vector<double>& vector, double value)
     {
         for (int i = 0; i < vector.size(); i++)
         {
-            if (samplePoints[i] > value)
+            if (vector[i] > value)
             {
                 double closest = vector[i] + vector[i-1]
                         - 2.0 * value;

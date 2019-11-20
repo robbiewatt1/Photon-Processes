@@ -98,18 +98,65 @@ class Matrix
 #if USEHDF5
         void save(const H5std_string fileName, const H5std_string dataName)
         {
-        //  H5::Exception::dontPrint(); 
-            H5::H5File* file = new H5::H5File(fileName, H5F_ACC_TRUNC);
+            H5::Exception::dontPrint(); 
+            H5::H5File* file;
+            try
+            {
+                file = new H5::H5File(fileName, H5F_ACC_RDWR);
+            } catch (const H5::Exception& e)
+            {
+                file = new H5::H5File(fileName, H5F_ACC_EXCL);
+            }
+
             int dataRank = 2;
             hsize_t dataDim[2];
             dataDim[0] = m_nRow;
             dataDim[1] = m_nColumn;
             H5::DataSpace dataSpace(dataRank, dataDim);
-            H5::DataSet* dataSet = new H5::DataSet(
-                file->createDataSet(dataName, H5::PredType::NATIVE_DOUBLE, dataSpace));
-            dataSet->write(m_data, H5::PredType::NATIVE_DOUBLE);
-            file->close();
-            delete dataSet;
+            try
+            {
+                H5::DataSet* dataSet = new H5::DataSet(
+                    file->createDataSet(dataName, H5::PredType::NATIVE_DOUBLE,
+                        dataSpace));
+                dataSet->write(m_data, H5::PredType::NATIVE_DOUBLE);
+                file->close();
+                delete file;
+                delete dataSet;
+            } catch (const H5::Exception& e)
+            {
+                std::cerr << "Error: Data set: \'" << dataName
+                    << "\'' probabily already exists." << std::endl;
+                delete file;
+                exit(1);
+            }
+        }
+
+        void open(const H5std_string fileName, const H5std_string dataName)
+        {
+            // Clear current data
+            delete [] m_data; 
+
+            H5::H5File* file = new H5::H5File(fileName, H5F_ACC_RDONLY);
+            H5::DataSet dataset = file->openDataSet(dataName);
+            H5::DataSpace dataspace = dataset.getSpace();
+            int rank = dataspace.getSimpleExtentNdims();
+
+            if(rank != 2)
+            {
+                std::cerr << "Error: Data set " << dataName << " has rank: " << rank
+                    << ". This cannot be opend as a matrix." << std::endl;
+                exit(1);
+            }
+            hsize_t dims[2];
+            dataspace.getSimpleExtentDims(dims, NULL);
+            H5::DataSpace mSpace(2, dims);
+
+            // Allocate new space
+            m_data = new T [dims[0] * dims[1]];
+            m_nRow = dims[0];
+            m_nColumn = dims[1];
+            H5::DataType datatype = H5Dget_type(dataset. getId());
+            dataset.read(m_data, datatype, mSpace, dataspace);
         }
 #endif
         // Sums all the elements together

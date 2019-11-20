@@ -39,6 +39,10 @@ public:
     G4double GetMeanFreePath(const G4Track& track, G4double, 
             G4ForceCondition*) override;
 
+    /* Returns true for applicable particles */
+    virtual G4bool IsApplicable(const G4ParticleDefinition&
+        particle) const = 0;
+
     /* Method to add new particles and edit interacting ones */
     virtual G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
             const G4Step& aStep) = 0;
@@ -54,13 +58,28 @@ protected:
 
     /* Calculates the centre of mass energy. dynamicEnergy is the 
        interacting particle and static energy is a photon from the field */
-    virtual double centreOfMass(double dynamicEnergy, double staticEnergy,
-        double theta) const = 0;
+    virtual double centreOfMassEnergy(double dynamicEnergy,
+        double staticEnergy, double theta) const = 0;
+
+    /* Same equation as centreOfMass but rearanged so static energy is
+       returned */
+    virtual double centreOfMassStatic(double comEnergy,
+        double dynamicEnergy, double theta) const = 0;
+
+    /* Same equation as centreOfMass but rearanged so dynamic energy is
+       returned */
+    virtual double centreOfMassDynamic(double comEnergy,
+        double staticEnergy, double theta) const = 0;
+
+    /* Same equation as centreOfMass but rearanged so angle between particles
+       is returned */
+    virtual double centreOfMassTheta(double comEnergy, double dynamicEnergy,
+        double staticEnergy) const = 0;
 
 protected:
     /* Samples the energy, angle from the photon field */
-    void samplePhotonField(int blockID, double gammaEnergy, double& photonEnergy,
-        double& comEnergy, double& photonPhi);
+    void samplePhotonField(int blockID, double gammaEnergy,
+        double& photonEnergy, double& comEnergy, double& photonPhi) const;
 
     /* Sampeles a scattering angle from the differential cross-section.
        Assumes scattering is maximum on axis.  */
@@ -69,9 +88,8 @@ protected:
     /* returns the values of theta and phi in the rotated frame.
        angleIn = [theta, phi] angleOut = [theta, phi]*/
     void rotateThetaPhi(double angleIn[2], double angleOut[2],
-        const G4RotationMatrix& rotaion);
+        const G4RotationMatrix& rotaion) const;
 
-private:
     PhotonField* m_field;      // static X ray field
     double m_comMin;           // Min COM energy of interest
     double m_minDensity;       // Min angula density of interest

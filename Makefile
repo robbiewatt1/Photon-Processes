@@ -196,6 +196,66 @@ Source/GaussianProcess/GaussianProcess.cpp.s:
 	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/GaussianProcess/GaussianProcess.cpp.s
 .PHONY : Source/GaussianProcess/GaussianProcess.cpp.s
 
+Source/Processes/BreitWheeler.o: Source/Processes/BreitWheeler.cpp.o
+
+.PHONY : Source/Processes/BreitWheeler.o
+
+# target to build an object file
+Source/Processes/BreitWheeler.cpp.o:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/BreitWheeler.cpp.o
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/BreitWheeler.cpp.o
+.PHONY : Source/Processes/BreitWheeler.cpp.o
+
+Source/Processes/BreitWheeler.i: Source/Processes/BreitWheeler.cpp.i
+
+.PHONY : Source/Processes/BreitWheeler.i
+
+# target to preprocess a source file
+Source/Processes/BreitWheeler.cpp.i:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/BreitWheeler.cpp.i
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/BreitWheeler.cpp.i
+.PHONY : Source/Processes/BreitWheeler.cpp.i
+
+Source/Processes/BreitWheeler.s: Source/Processes/BreitWheeler.cpp.s
+
+.PHONY : Source/Processes/BreitWheeler.s
+
+# target to generate assembly for a file
+Source/Processes/BreitWheeler.cpp.s:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/BreitWheeler.cpp.s
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/BreitWheeler.cpp.s
+.PHONY : Source/Processes/BreitWheeler.cpp.s
+
+Source/Processes/ComptonScatter.o: Source/Processes/ComptonScatter.cpp.o
+
+.PHONY : Source/Processes/ComptonScatter.o
+
+# target to build an object file
+Source/Processes/ComptonScatter.cpp.o:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/ComptonScatter.cpp.o
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/ComptonScatter.cpp.o
+.PHONY : Source/Processes/ComptonScatter.cpp.o
+
+Source/Processes/ComptonScatter.i: Source/Processes/ComptonScatter.cpp.i
+
+.PHONY : Source/Processes/ComptonScatter.i
+
+# target to preprocess a source file
+Source/Processes/ComptonScatter.cpp.i:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/ComptonScatter.cpp.i
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/ComptonScatter.cpp.i
+.PHONY : Source/Processes/ComptonScatter.cpp.i
+
+Source/Processes/ComptonScatter.s: Source/Processes/ComptonScatter.cpp.s
+
+.PHONY : Source/Processes/ComptonScatter.s
+
+# target to generate assembly for a file
+Source/Processes/ComptonScatter.cpp.s:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/ComptonScatter.cpp.s
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/ComptonScatter.cpp.s
+.PHONY : Source/Processes/ComptonScatter.cpp.s
+
 Source/Processes/PhotonProcess.o: Source/Processes/PhotonProcess.cpp.o
 
 .PHONY : Source/Processes/PhotonProcess.o
@@ -225,6 +285,36 @@ Source/Processes/PhotonProcess.cpp.s:
 	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/PhotonProcess.cpp.s
 	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/PhotonProcess.cpp.s
 .PHONY : Source/Processes/PhotonProcess.cpp.s
+
+Source/Processes/PhotonScatter.o: Source/Processes/PhotonScatter.cpp.o
+
+.PHONY : Source/Processes/PhotonScatter.o
+
+# target to build an object file
+Source/Processes/PhotonScatter.cpp.o:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/PhotonScatter.cpp.o
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/PhotonScatter.cpp.o
+.PHONY : Source/Processes/PhotonScatter.cpp.o
+
+Source/Processes/PhotonScatter.i: Source/Processes/PhotonScatter.cpp.i
+
+.PHONY : Source/Processes/PhotonScatter.i
+
+# target to preprocess a source file
+Source/Processes/PhotonScatter.cpp.i:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/PhotonScatter.cpp.i
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/PhotonScatter.cpp.i
+.PHONY : Source/Processes/PhotonScatter.cpp.i
+
+Source/Processes/PhotonScatter.s: Source/Processes/PhotonScatter.cpp.s
+
+.PHONY : Source/Processes/PhotonScatter.s
+
+# target to generate assembly for a file
+Source/Processes/PhotonScatter.cpp.s:
+	$(MAKE) -f CMakeFiles/PhotonProcess.dir/build.make CMakeFiles/PhotonProcess.dir/Source/Processes/PhotonScatter.cpp.s
+	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/Source/Processes/PhotonScatter.cpp.s
+.PHONY : Source/Processes/PhotonScatter.cpp.s
 
 Source/Tools/Numerics.o: Source/Tools/Numerics.cpp.o
 
@@ -299,9 +389,18 @@ help:
 	@echo "... Source/GaussianProcess/GaussianProcess.o"
 	@echo "... Source/GaussianProcess/GaussianProcess.i"
 	@echo "... Source/GaussianProcess/GaussianProcess.s"
+	@echo "... Source/Processes/BreitWheeler.o"
+	@echo "... Source/Processes/BreitWheeler.i"
+	@echo "... Source/Processes/BreitWheeler.s"
+	@echo "... Source/Processes/ComptonScatter.o"
+	@echo "... Source/Processes/ComptonScatter.i"
+	@echo "... Source/Processes/ComptonScatter.s"
 	@echo "... Source/Processes/PhotonProcess.o"
 	@echo "... Source/Processes/PhotonProcess.i"
 	@echo "... Source/Processes/PhotonProcess.s"
+	@echo "... Source/Processes/PhotonScatter.o"
+	@echo "... Source/Processes/PhotonScatter.i"
+	@echo "... Source/Processes/PhotonScatter.s"
 	@echo "... Source/Tools/Numerics.o"
 	@echo "... Source/Tools/Numerics.i"
 	@echo "... Source/Tools/Numerics.s"

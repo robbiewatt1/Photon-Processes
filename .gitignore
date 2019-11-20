@@ -3,5 +3,8 @@ CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/*
 *.so
-*.
+*.a
 Tests/*
+todo.txt
+Makefile
+*.h5

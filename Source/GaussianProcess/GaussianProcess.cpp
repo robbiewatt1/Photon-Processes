@@ -1,5 +1,6 @@
 #include "GaussianProcess.hh"
 #include <fstream>
+#include <cmath>
 
 GaussianProcess::GaussianProcess(int gpSize, int inputSize, int trainSize):
 m_gpSize(gpSize), m_trainSize(trainSize), m_inputSize(inputSize)
@@ -94,7 +95,10 @@ void GaussianProcess::setNormParams(const Vector<double>& inputNorm,
 {
     m_outputNorm = outputNorm;
     m_inputNorm = Vector<double>(m_inputSize);
-    for (int i = 0; i < m_inputSize; ++i) m_inputNorm[i] = inputNorm[i];
+    for (int i = 0; i < m_inputSize; ++i)
+    {
+        m_inputNorm[i] = std::log10(inputNorm[i]);
+    }
 }
 
 void GaussianProcess::run(int gpID, const Vector<double>& input,
@@ -106,10 +110,14 @@ void GaussianProcess::run(int gpID, const Vector<double>& input,
         output[1] = 1e99;
     } else
     {
-        for (int i = 0; i < m_inputSize; ++i) input[i] /= m_inputNorm[i];
-        output[0] = m_gausProc[gpID]->f(input.begin()) / m_outputNorm;
+        for (int i = 0; i < m_inputSize; ++i)
+        {
+            input[i] = std::log10(input[i]) / m_inputNorm[i];
+        }
+        output[0] = std::pow(10, m_gausProc[gpID]->f(input.begin())
+            * m_outputNorm);
         output[1] = m_gausProc[gpID]->var(input.begin())
-            / (m_outputNorm * m_outputNorm);
+            * (m_outputNorm * m_outputNorm);
     }
 }
 
@@ -117,9 +125,12 @@ void GaussianProcess::addData(int gpID, const Vector<double>& input,
     double output)
 {
     Eigen::VectorXd dataPoint(m_inputSize);
-    for (int i = 0; i < m_inputSize; ++i) dataPoint[i] = input[i];
+    for (int i = 0; i < m_inputSize; ++i)
+    {
+        dataPoint[i] = std::log10(input[i]) / m_inputNorm[i];
+    }
     m_input[gpID][m_trainCount[gpID]] = dataPoint;
-    m_output[gpID][m_trainCount[gpID]] = output;
+    m_output[gpID][m_trainCount[gpID]] = output / m_outputNorm;
 }
 
 void GaussianProcess::train(int gpID)
