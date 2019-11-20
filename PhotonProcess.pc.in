@@ -1,0 +1,11 @@
+libdir=@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@
+includedir=@CMAKE_INSTALL_PREFIX@/include/PhotonProcess
+
+Name: PhotonProcess
+Description: Geant4 QED processes in a static photon field
+URL: https://github.com/robbiewatt1/Photon-Processes.git
+Version:
+Requires:
+Conflicts:
+Libs: -L${libdir} -lPhotonProcess
+Cflags: -I${includedir}

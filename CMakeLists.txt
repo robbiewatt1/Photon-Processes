@@ -5,6 +5,9 @@ project(PhotonProject)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall")
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+#set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/Install")
+#set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 find_package(Geant4 REQUIRED)
 find_package(Eigen3 3.0.1 REQUIRED)
@@ -35,20 +38,27 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Source/Tools
 		    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Fields
 		    ${CMAKE_CURRENT_SOURCE_DIR}/Source/GaussianProcess)
 
+#add the pkgConfig file
+configure_file(${CMAKE_SOURCE_DIR}/PhotonProcess.pc.in
+        ${CMAKE_BINARY_DIR}/PhotonProcess.pc @ONLY)
+
+
 # Add the base required libraries
 if(BUILD_GP)
 	add_compile_definitions(USEGP)
 	file(GLOB source_gp ${CMAKE_CURRENT_SOURCE_DIR}/Source/GaussianProcess/*.cpp)
 	file(GLOB header_gp ${CMAKE_CURRENT_SOURCE_DIR}/Source/GaussianProcess/*.hh)
-	add_library(PhotonProcess ${source} ${header} ${source_gp} ${header_gp})
+	add_library(PhotonProcess SHARED ${source} ${header} ${source_gp} ${header_gp})
 	target_include_directories(PhotonProcess PUBLIC ${Geant4_INCLUDE_DIRS} ${libgp_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS})
 	target_link_libraries(PhotonProcess ${Geant4_LIBRARIES} Eigen3::Eigen ${libgp_LIBRARIES} ${HDF5_LIBRARIES})
-
-        add_executable(test test.cpp ${source} ${header} ${source_gp} ${header_gp})
-        target_include_directories(test PUBLIC ${Geant4_INCLUDE_DIRS} ${libgp_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS})
-        target_link_libraries(test ${Geant4_LIBRARIES} Eigen3::Eigen ${libgp_LIBRARIES} ${HDF5_LIBRARIES})
+	install(TARGETS PhotonProcess LIBRARY DESTINATION lib)
+	install(FILES ${header} ${header_gp}  DESTINATION include/PhotonProcess)
+	install(FILES ${CMAKE_BINARY_DIR}/PhotonProcess.pc DESTINATION lib/pkgconfig)
 else()
 	add_library(PhotonProcess ${source} ${header})
-        target_include_directories(PhotonProcess PUBLIC ${libgp_INCLUDE_DIRS})
-        target_link_libraries(PhotonProcess ${Geant4_LIBRARIES} Eigen3::Eigen)
+    target_include_directories(PhotonProcess PUBLIC ${libgp_INCLUDE_DIRS})
+    target_link_libraries(PhotonProcess ${Geant4_LIBRARIES} Eigen3::Eigen)
+    install(TARGETS PhotonProcess LIBRARY DESTINATION lib)
+    install(FILES ${header} DESTINATION include/PhotonProcess)
+    install(FILES ${CMAKE_BINARY_DIR}/PhotonProcess.pc DESTINATION lib/pkgconfig)
 endif()

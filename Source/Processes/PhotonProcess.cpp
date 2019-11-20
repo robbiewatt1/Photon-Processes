@@ -78,6 +78,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
 
     /* If nonIsotropic, check if field is dense above COM threshold */
     /* Return 1e99 if angle is also too low. */
+    /*
     if(!m_field->isIsotropic())
     {
         int thetaMinIndex = Numerics::vectorIndex(m_field->getTheta(), thetaMin);
@@ -103,7 +104,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         }
     }
     isDense:
-
+    */
 #ifdef USEGP
     /* Check if we can use the GP instead */
     double gpOut[2];
@@ -141,7 +142,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                         std::cos(m_field->getTheta()[j]));
                 } else 
                 {
-                    comInt[j] = 0;
+                    thetaInt[j] = 0;
                 }
             }
             energyInt[i] = m_field->getEnergyDensity()[i]
@@ -180,7 +181,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                         std::cos(m_field->getTheta()[j]));
                 } else 
                 {
-                    comInt[j] = 0;
+                    thetaInt[j] = 0;
                 }
             }
             energyInt[i] = m_field->getEnergyDensity()[i]
