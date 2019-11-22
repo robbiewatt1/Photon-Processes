@@ -80,11 +80,11 @@ class Vector
             return &m_data[m_size - 1];
         }
 
-        void empty()
+        void fill(T value)
         {
             for (int i = 0; i < m_size; i++)
             {
-                m_data[i] = 0.0;
+                m_data[i] = value;
             }
         }
 
@@ -238,11 +238,8 @@ class Vector
 
                     m_data[i] = Vector.m_data[i];
                 }
-            }else
-            {
-                m_data = 0;
             }
-
+            
             return *this;
             // Copys a matirx to a new variable
         }

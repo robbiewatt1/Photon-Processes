@@ -119,7 +119,7 @@ double Numerics::interpolate2D(const Vector<double>& sampleX,
             << std::endl;
         closestIndexY[0] = 0;
         closestIndexY[1] = 1;
-    } else if (queryPoint[1] > *sampleX.end())
+    } else if (queryPoint[1] > *sampleY.end())
     {
         std::cout << "Warning: Extrapolation used in interpolate2D()"
             << std::endl;
@@ -144,8 +144,8 @@ double Numerics::interpolate2D(const Vector<double>& sampleX,
     double z11 = sampleZ[closestIndexX[0]][closestIndexY[0]];
     double z12 = sampleZ[closestIndexX[0]][closestIndexY[1]];
     double z21 = sampleZ[closestIndexX[1]][closestIndexY[0]];
-    double z22 = sampleZ[closestIndexX[1]][closestIndexY[1]];
-    return 1.0 / ((x2 - x1) * ( y2 - y2))
+    double z22 = sampleZ[closestIndexX[1]][closestIndexY[1]];  
+    return 1.0 / ((x2 - x1) * (y2 - y1))
         * (z11 * (x2 - queryPoint[0]) * (y2 - queryPoint[1])
          + z21 * (queryPoint[0] - x1) * (y2 - queryPoint[1])
          + z12 * (x2 - queryPoint[0]) * (queryPoint[1] - y1)
