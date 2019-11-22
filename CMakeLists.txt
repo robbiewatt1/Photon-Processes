@@ -25,6 +25,7 @@ if(BUILD_GP)
 	pkg_check_modules(libgp REQUIRED libgp)
 endif()
 
+message(${HDF5_INCLUDE_DIRS})
 
 file(GLOB source ${CMAKE_CURRENT_SOURCE_DIR}/Source/Tools/*.cpp
 	   	 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Processes/*.cpp
@@ -37,11 +38,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Source/Tools
 		    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Processes
 		    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Fields
 		    ${CMAKE_CURRENT_SOURCE_DIR}/Source/GaussianProcess)
-
 #add the pkgConfig file
 configure_file(${CMAKE_SOURCE_DIR}/PhotonProcess.pc.in
         ${CMAKE_BINARY_DIR}/PhotonProcess.pc @ONLY)
-
 
 # Add the base required libraries
 if(BUILD_GP)
@@ -55,7 +54,7 @@ if(BUILD_GP)
 	install(FILES ${header} ${header_gp}  DESTINATION include/PhotonProcess)
 	install(FILES ${CMAKE_BINARY_DIR}/PhotonProcess.pc DESTINATION lib/pkgconfig)
 else()
-	add_library(PhotonProcess ${source} ${header})
+    add_library(PhotonProcess ${source} ${header})
     target_include_directories(PhotonProcess PUBLIC ${libgp_INCLUDE_DIRS})
     target_link_libraries(PhotonProcess ${Geant4_LIBRARIES} Eigen3::Eigen)
     install(TARGETS PhotonProcess LIBRARY DESTINATION lib)

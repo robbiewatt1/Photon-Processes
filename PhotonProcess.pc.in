@@ -5,7 +5,7 @@ Name: PhotonProcess
 Description: Geant4 QED processes in a static photon field
 URL: https://github.com/robbiewatt1/Photon-Processes.git
 Version:
-Requires:
+Requires: libgp eigen3
 Conflicts:
 Libs: -L${libdir} -lPhotonProcess
 Cflags: -I${includedir}
