@@ -4,7 +4,6 @@ cmake_install.cmake
 CMakeFiles/*
 *.so
 *.a
-*.pc
 Tests/*
 todo.txt
 Makefile
