@@ -5,9 +5,7 @@
 #include <cassert>
 #include <iomanip>
 
-#if USEHDF5
-    #include "H5Cpp.h"
-#endif
+#include "H5Cpp.h"
 
 
 template <typename T>
@@ -95,8 +93,8 @@ class Matrix
                 m_data[i] = 0.0;
             }
         }
-#if USEHDF5
-        void save(const H5std_string fileName, const H5std_string dataName)
+        
+	void save(const H5std_string fileName, const H5std_string dataName)
         {
             H5::Exception::dontPrint(); 
             H5::H5File* file;
@@ -158,8 +156,8 @@ class Matrix
             H5::DataType datatype = H5Dget_type(dataset. getId());
             dataset.read(m_data, datatype, mSpace, dataspace);
         }
-#endif
-        // Sums all the elements together
+        
+	// Sums all the elements together
         T sum()
         {
             T sum(0);
