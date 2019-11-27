@@ -80,12 +80,13 @@ G4VParticleChange* BreitWheeler::PostStepDoIt(const G4Track& aTrack,
         -std::sin(pairTheta) * std::sin(pairPhi) * pairMomentum,
         -std::cos(pairTheta) * pairMomentum, pairEnergy);
 
-    double beta = std::sqrt(gammaEnergy * gammaEnergy + photonEnergy
+    double beta = std::sqrt((gammaEnergy * gammaEnergy + photonEnergy
         * photonEnergy + 2.0 * gammaEnergy * photonEnergy
-        * std::cos(photonTheta) / (gammaEnergy * gammaEnergy + photonEnergy
+        * std::cos(photonTheta)) / (gammaEnergy * gammaEnergy + photonEnergy
             * photonEnergy + 2.0 * gammaEnergy * photonEnergy));
-    electronVector.boostZ(-beta);
-    positronVector.boostZ(-beta);
+    std::cout << beta << std::endl;
+    electronVector.boostZ(beta);
+    positronVector.boostZ(beta);
 
     /* Apply rotation into frame with gamma along z axis */  
     double thetaGamma = std::atan2(photonEnergy * std::sin(photonTheta),
@@ -155,7 +156,6 @@ double BreitWheeler::centreOfMassDynamic(double comEnergy,
     return 2.0 * electron_mass_c2 * electron_mass_c2 * comEnergy
         / (staticEnergy * (1.0 - std::cos(theta)));
 }
-
 
 double BreitWheeler::centreOfMassTheta(double comEnergy,
     double dynamicEnergy, double staticEnergy) const

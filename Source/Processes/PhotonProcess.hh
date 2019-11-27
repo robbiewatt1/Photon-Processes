@@ -99,6 +99,7 @@ protected:
     double m_errorMax;       // Max eroor before using GP
     bool m_save;             // Bool deciding if GP is saved
     GaussianProcess* m_gp;   // GP class handling the Gaussian Process
+    bool m_useGP;            // Bool turing GP on and off
 #endif
 
 };

@@ -5,7 +5,8 @@
 
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin,
     const G4String& name, G4ProcessType type):
-G4VDiscreteProcess(name, type), m_field(field), m_comMin(comMin)
+G4VDiscreteProcess(name, type), m_field(field), m_comMin(comMin),
+m_useGP(false)
 {
 }
 
@@ -13,7 +14,7 @@ G4VDiscreteProcess(name, type), m_field(field), m_comMin(comMin)
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin, int trainSize,
     double errorMax, bool save, const G4String& name, G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field),
-m_comMin(comMin), m_errorMax(errorMax), m_save(save)
+m_comMin(comMin), m_errorMax(errorMax), m_save(save), m_useGP(true)
 {
     int numBlocks = m_field->getNumBlocks();
     int dims = m_field->fieldDimensions();
@@ -24,7 +25,7 @@ PhotonProcess::PhotonProcess(PhotonField* field,  double comMin,
     const G4String& gpDir, int trainSize, double errorMax, bool save,
     const G4String& name, G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field),
-m_comMin(comMin), m_errorMax(errorMax), m_save(save)
+m_comMin(comMin), m_errorMax(errorMax), m_save(save), m_useGP(true)
 {
     m_gp = new GaussianProcess(gpDir);
 }
@@ -44,17 +45,9 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
     G4Material* aMaterial = track.GetMaterial();
     if(aMaterial->GetMaterialPropertiesTable()->GetConstProperty("Radiation")
             < 0.0) return 1e99;
-
-    /* get the ID of the block */
-    double blockX = aMaterial->GetMaterialPropertiesTable()
-            ->GetConstProperty("Xpos");
-    double blockY = aMaterial->GetMaterialPropertiesTable()
-            ->GetConstProperty("Ypos");
-    double blockZ = aMaterial->GetMaterialPropertiesTable()
-            ->GetConstProperty("Zpos");
-    int position[3] = {(int)blockX, (int)blockY, (int)blockZ};
-    int blockID = m_field->getBlockID(position);
-
+    int blockID = aMaterial->GetMaterialPropertiesTable()
+        ->GetConstProperty("BlockID");
+    
     /* Get the interacting particle properties */
     const G4DynamicParticle *aDynamicGamma = track.GetDynamicParticle();
     double dynamicEnergy = aDynamicGamma->GetKineticEnergy();
@@ -105,20 +98,24 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
     }
     isDense:
     */
+
 #ifdef USEGP
-    /* Check if we can use the GP instead */
-    double gpOut[2];
-    if (m_field->isIsotropic())
+    if (m_useGP)
     {
-        m_gp->run(blockID, {dynamicEnergy}, gpOut);
-    } else
-    {
-        m_gp->run(blockID, {dynamicEnergy, dynamicTheta, dynamicPhi}, gpOut);
-    }
-    
-    if (gpOut[1] < m_errorMax)
-    {
-        return gpOut[0];
+        /* Check if we can use the GP instead */
+        double gpOut[2];
+        if (m_field->isIsotropic())
+        {
+            m_gp->run(blockID, {dynamicEnergy}, gpOut);
+        } else
+        {
+            m_gp->run(blockID, {dynamicEnergy, dynamicTheta, dynamicPhi}, gpOut);
+        }
+
+        if (gpOut[1] < m_errorMax)
+        {
+            return gpOut[0];
+        }
     }
 #endif
 
@@ -138,8 +135,9 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                     m_field->getEnergy()[i], m_field->getTheta()[j]);
                 if (comEnergy > m_comMin)
                 {
-                    thetaInt[j] = crossSection(comEnergy) * (1.0 -
-                        std::cos(m_field->getTheta()[j]));
+                    thetaInt[j] = crossSection(comEnergy)
+                        * (1.0 - std::cos(m_field->getTheta()[j]))
+                        * std::sin(m_field->getTheta()[j]);
                 } else 
                 {
                     thetaInt[j] = 0;
@@ -148,8 +146,8 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             energyInt[i] = m_field->getEnergyDensity()[i]
                 * Numerics::simpsons(m_field->getTheta(), thetaInt);
         }
-        meanPath = 1.0 / Numerics::simpsons(m_field->getEnergyDensity(),
-            energyInt);
+        meanPath = 2.0 / (classic_electr_radius * classic_electr_radius
+            * pi * Numerics::simpsons(m_field->getEnergy(), energyInt));
     } else // Is anisotropic
     {
         Vector<double> thetaInt(m_field->getAngleRes());
@@ -177,8 +175,10 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                     m_field->getEnergy()[i], m_field->getTheta()[j]);
                 if (comEnergy > m_comMin)
                 {
-                    thetaInt[j] = crossSection(comEnergy) * (1.0 -
-                        std::cos(m_field->getTheta()[j]));
+                    thetaInt[j] = crossSection(comEnergy) * (1.0
+                            - std::cos(m_field->getTheta()[j]))
+                        * std::sin(m_field->getTheta()[j])
+                        * Numerics::simpsons(m_field->getPhi(), phiInt);
                 } else 
                 {
                     thetaInt[j] = 0;
@@ -187,19 +187,23 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             energyInt[i] = m_field->getEnergyDensity()[i]
                 * Numerics::simpsons(m_field->getTheta(), thetaInt);       
         }
-        meanPath = 1.0 / Numerics::simpsons(m_field->getEnergyDensity(),
-            energyInt);
+        meanPath = 2.0 / (classic_electr_radius * classic_electr_radius
+            * pi * Numerics::simpsons(m_field->getEnergy(), energyInt));
     }
 #ifdef USEGP
-    if (m_field->isIsotropic())
+    if (m_useGP)
     {
-        m_gp->addData(blockID, {dynamicEnergy}, meanPath);
-    } else
-    {
-        m_gp->addData(blockID, {dynamicEnergy, dynamicTheta, dynamicPhi},
-            meanPath);
+        if (m_field->isIsotropic())
+        {
+            m_gp->addData(blockID, {dynamicEnergy}, meanPath);
+        } else
+        {
+            m_gp->addData(blockID, {dynamicEnergy, dynamicTheta, dynamicPhi},
+                meanPath);
+        }
     }
 #endif
+    std::cout << electron_mass_c2 << std::endl;
     return meanPath;
 }
 
