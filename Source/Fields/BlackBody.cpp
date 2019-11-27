@@ -13,7 +13,7 @@ BlackBody::BlackBody(double temp, double energyMin, double energyMax,
     m_theta   = Vector<double>(m_angleRes);
 
     double energyDelta = (energyMax - energyMin) / m_energyRes;
-    double thetaDelta  = 2.0 * CLHEP::pi / m_angleRes;
+    double thetaDelta  = CLHEP::pi / m_angleRes;
     for (int i = 0; i < m_angleRes; i++) m_theta[i] = i * thetaDelta;
     for (int i = 0; i < m_energyRes; i++) {m_energy[i] = i * energyDelta
             + energyMin;}
@@ -22,7 +22,7 @@ BlackBody::BlackBody(double temp, double energyMin, double energyMax,
     for (int i = 0; i < m_energyRes; ++i)
     {
         m_energyDensity[i] = 1.0 / (hbar_Planck * hbar_Planck * hbar_Planck
-            * c_light * c_light * c_light * CLHEP::pi * CLHEP::pi) * m_energy[i]
+            * c_light * c_light * c_light * pi * pi) * m_energy[i]
             * m_energy[i] / std::exp(m_energy[i] / temp - 1.0);
     }
 }
