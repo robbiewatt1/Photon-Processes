@@ -19,15 +19,21 @@ class Matrix
     public:
 
         Matrix():
-        m_nRow(0),m_nColumn(0),m_data(nullptr)
+        m_nRow(0), m_nColumn(0), m_data(nullptr)
         {
         }
 
         Matrix(int nRow, int nColumn):
-        m_nRow(nRow),m_nColumn(nColumn)
+        m_nRow(nRow), m_nColumn(nColumn)
         {
             // allocate the array space
-            m_data = new T [m_nRow * m_nColumn];
+            if (m_nRow * m_nColumn > 0)
+            {
+                m_data = new T [m_nRow * m_nColumn];
+            } else
+            {
+                m_data = nullptr;
+            }
         }
 
         // Copy constructor 
@@ -43,10 +49,12 @@ class Matrix
             }
         }
 
-        // Defult destructor. This deletes the heap memory and avoids memory leaks
         ~Matrix()
         {
-            delete[] m_data;
+            if (m_data)
+            {
+                delete [] m_data;
+            }        
         }
 
         Matrix<T> deepCopy() const
@@ -132,7 +140,10 @@ class Matrix
         void open(const H5std_string fileName, const H5std_string dataName)
         {
             // Clear current data
-            delete [] m_data; 
+            if (m_data)
+            {
+                delete [] m_data;
+            }
 
             H5::H5File* file = new H5::H5File(fileName, H5F_ACC_RDONLY);
             H5::DataSet dataset = file->openDataSet(dataName);
@@ -155,6 +166,7 @@ class Matrix
             m_nColumn = dims[1];
             H5::DataType datatype = H5Dget_type(dataset. getId());
             dataset.read(m_data, datatype, mSpace, dataspace);
+            delete file;
         }
         
 	// Sums all the elements together
@@ -234,7 +246,10 @@ class Matrix
             }
 
             // Delete any data in new matrix is holding
-            delete[] m_data;
+            if (m_data)
+            {
+                delete[] m_data;
+            }
 
             // Copy variables over
             m_nRow = matrix.m_nRow;

@@ -6,6 +6,7 @@ PhotonProcessConfig.cmake
 *.so
 *.a
 Tests/*
+DataFiles/*
 todo.txt
 Makefile
 *.h5

@@ -6,7 +6,6 @@
 class BreitWheeler: public PhotonProcess
 {
 public:
-
     explicit BreitWheeler(PhotonField* field, double comMin = 1.0);
 
 #ifdef USEGP

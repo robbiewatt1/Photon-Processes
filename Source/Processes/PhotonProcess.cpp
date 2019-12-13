@@ -5,8 +5,8 @@
 
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin,
     const G4String& name, G4ProcessType type):
-G4VDiscreteProcess(name, type), m_field(field), m_comMin(comMin),
-m_useGP(false)
+G4VDiscreteProcess(name, type), m_comMin(comMin), m_useGP(false),
+m_field(field)
 {
 }
 
@@ -33,8 +33,11 @@ m_comMin(comMin), m_errorMax(errorMax), m_save(save), m_useGP(true)
 
 PhotonProcess::~PhotonProcess()
 {
-#ifdef USEGP  
-    delete m_gp;
+#ifdef USEGP
+    if(m_useGP)
+    {
+        delete m_gp;
+    }
 #endif
 }
 
@@ -49,18 +52,18 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         ->GetConstProperty("BlockID");
     
     /* Get the interacting particle properties */
-    const G4DynamicParticle *aDynamicGamma = track.GetDynamicParticle();
-    double dynamicEnergy = aDynamicGamma->GetKineticEnergy();
-    G4ThreeVector gammaDirection = aDynamicGamma->GetMomentumDirection();
-    double dynamicTheta = std::acos(gammaDirection[2]);
-    double dynamicPhi = std::atan2(gammaDirection[1],
-        gammaDirection[0] + 1e-99);
+    const G4DynamicParticle *dynamicParticle = track.GetDynamicParticle();
+    double dynamicEnergy = dynamicParticle->GetKineticEnergy();
+    G4ThreeVector particleDirection = dynamicParticle->GetMomentumDirection();
+    double dynamicTheta = std::acos(particleDirection[2]);
+    double dynamicPhi = std::atan2(particleDirection[1],
+        particleDirection[0] + 1e-99);
     dynamicPhi = dynamicPhi < 0 ? 2 * pi + dynamicPhi : dynamicPhi;
 
     /* Find the rotation matrices that rotate the gamma ray onto
        the z axis */
-    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(gammaDirection);
-    double rotationAngle = gammaDirection.angle(G4ThreeVector(0, 0, 1));
+    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(particleDirection);
+    double rotationAngle = particleDirection.angle(G4ThreeVector(0, 0, 1));
     m_rotaion = G4RotationMatrix(rotationAxis,
             rotationAngle);
 

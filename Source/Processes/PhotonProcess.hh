@@ -94,12 +94,12 @@ protected:
     double m_comMin;           // Min COM energy of interest
     double m_minDensity;       // Min angula density of interest
     G4RotationMatrix m_rotaion; // Rotation matrix to gamma frame
+    bool m_useGP;            // Bool turing GP on and off
 
 #ifdef USEGP
     double m_errorMax;       // Max eroor before using GP
     bool m_save;             // Bool deciding if GP is saved
     GaussianProcess* m_gp;   // GP class handling the Gaussian Process
-    bool m_useGP;            // Bool turing GP on and off
 #endif
 
 };

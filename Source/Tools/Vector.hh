@@ -15,16 +15,28 @@ class Vector
         T *m_data;
     
     public:
-
-        Vector():
-        m_size(0), m_data(nullptr)
+        Vector()
         {
+            std::cerr << "here" << std::endl;
+            getchar();
+            m_size = 0;
+            std::cerr << "here2" << std::endl;
+            getchar();
+            m_data = nullptr;
+            std::cerr << "here3" << std::endl;
+            getchar();
         }
 
         Vector(int size):
         m_size(size)
         {
-            m_data = new T [m_size];
+            if (m_size > 0)
+            {
+                m_data = new T [m_size];
+            } else
+            {
+                m_data = nullptr;
+            }
         }
 
         Vector(const std::initializer_list<T> list):
@@ -46,10 +58,12 @@ class Vector
             }
         }
 
-        // Defult destructor. This deletes the heap memory and avoids memory leaks
         ~Vector()
         {
-            delete[] m_data;
+            if (m_data)
+            {
+                delete [] m_data;
+            }
         }
 
         Vector<T> deepCopy() const
@@ -121,8 +135,11 @@ class Vector
         void open(const H5std_string fileName, const H5std_string dataName)
         {
             // Clear current data
-            delete [] m_data;
-            
+            if (m_data)
+            {
+                delete [] m_data;
+            }
+           
             H5::H5File* file = new H5::H5File(fileName, H5F_ACC_RDONLY);
             H5::DataSet dataset = file->openDataSet(dataName);
             H5::DataSpace dataspace = dataset.getSpace();
@@ -137,12 +154,15 @@ class Vector
             hsize_t dims[1];
             dataspace.getSimpleExtentDims(dims, NULL);
             H5::DataSpace mSpace(1, dims);
-
             // Allocate new space
             m_data = new T [dims[0]];
             m_size = dims[0];
             H5::DataType datatype = H5Dget_type(dataset. getId());
+
             dataset.read(m_data, datatype, mSpace, dataspace);
+
+            delete file;
+
         }
 
         // Sums all the elements together
@@ -213,20 +233,21 @@ class Vector
         Vector<T>& operator=(const Vector<T> &Vector)
         {
             // Self assigmnet gard
-            if( this == &Vector)
+            if(this == &Vector)
             {
                 return *this;
             }
 
             // Delete any data in new Vector is holding
-            delete[] m_data;
-
+            if (m_data)
+            {
+                delete[] m_data;
+            }
             // Copy variables over
             m_size = Vector.m_size;
+            m_data = new T [m_size];
             if(Vector.m_data)
             {
-                // allocate the array space
-                m_data = new T [m_size];
                 // Copy the data over
                 for(int i = 0; i < m_size; i++)
                 {

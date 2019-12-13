@@ -61,9 +61,10 @@ private:
        cross-section data */
     void openDataFile(const std::string& fileName);
 
+    /* Vectors conraining the tabulated cross-section data */
     Vector<double> m_comEnergy;
     Vector<double> m_comTheta;
-    Vector<double> m_totalCrossSection;
-    Matrix<double> m_diffCrossSection;
+ //   Vector<double> m_totalCrossSection;
+ //   Matrix<double> m_diffCrossSection;
 };
 #endif
