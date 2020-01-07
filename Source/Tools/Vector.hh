@@ -17,14 +17,8 @@ class Vector
     public:
         Vector()
         {
-            std::cerr << "here" << std::endl;
-            getchar();
             m_size = 0;
-            std::cerr << "here2" << std::endl;
-            getchar();
             m_data = nullptr;
-            std::cerr << "here3" << std::endl;
-            getchar();
         }
 
         Vector(int size):

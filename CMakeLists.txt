@@ -50,10 +50,12 @@ install(TARGETS PhotonProcess EXPORT PhotonProcess-targets DESTINATION lib)
 install(EXPORT PhotonProcess-targets DESTINATION lib/cmake/PhotonProcess)
 install(FILES ${header} ${header_gp}  DESTINATION include/PhotonProcess)
 
-
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
 	"PhotonProcessConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/PhotonProcessConfig.cmake"
 	INSTALL_DESTINATION "lib/cmake/PhotonProcess"
 )
+if(BUILD_GP)
+	File(APPEND PhotonProcessConfig.cmake "add_definitions(-DUSEGP)")
+endif()
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PhotonProcessConfig.cmake" DESTINATION lib/cmake/PhotonProcess)
