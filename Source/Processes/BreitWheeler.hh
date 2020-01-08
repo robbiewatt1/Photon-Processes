@@ -10,12 +10,12 @@ public:
 
 #ifdef USEGP
     explicit BreitWheeler(PhotonField* field,
-        int trainSize, double errorMax, bool save,
-        double comMin = 1.0);
+        int trainSize, double errorMax,
+        double comMin = 1.0, std::string saveDir = "");
 
     explicit BreitWheeler(PhotonField* field,
         const G4String& gpDir, int trainSize, double errorMax,
-        bool save, double comMin = 1.0);
+        double comMin = 1.0, std::string saveDir = "");
 #endif
 
     ~BreitWheeler();

@@ -13,13 +13,13 @@ public:
 #ifdef USEGP
     /* GP constructor new */
     explicit ComptonScatter(PhotonField* field, const std::string& dataFile,
-        int trainSize, double errorMax, bool save,
-        double comMin = 1.0);
+        int trainSize, double errorMax, double comMin = 1.0,
+        std::string saveDir = "");
 
     /* GP constructor using previously trained GP */
     explicit ComptonScatter(PhotonField* field, const std::string& dataFile,
         const G4String& gpDir, int trainSize, double errorMax,
-        bool save, double comMin = 1.0);
+        double comMin = 1.0, std::string saveDir = "");
 #endif
 
     ~ComptonScatter();

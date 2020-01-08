@@ -5,16 +5,17 @@
 
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin,
     const G4String& name, G4ProcessType type):
-G4VDiscreteProcess(name, type), m_comMin(comMin), m_useGP(false),
-m_field(field)
+G4VDiscreteProcess(name, type), m_field(field), m_comMin(comMin),
+m_useGP(false)
 {
 }
 
 #ifdef USEGP
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin, int trainSize,
-    double errorMax, bool save, const G4String& name, G4ProcessType type):
+    double errorMax, std::string saveDir, const G4String& name,
+    G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field),
-m_comMin(comMin), m_errorMax(errorMax), m_save(save), m_useGP(true)
+m_comMin(comMin), m_useGP(true), m_errorMax(errorMax), m_saveDir(saveDir)
 {
     int numBlocks = m_field->getNumBlocks();
     int dims = m_field->fieldDimensions();
@@ -22,10 +23,10 @@ m_comMin(comMin), m_errorMax(errorMax), m_save(save), m_useGP(true)
 }
 
 PhotonProcess::PhotonProcess(PhotonField* field,  double comMin,
-    const G4String& gpDir, int trainSize, double errorMax, bool save,
+    const G4String& gpDir, int trainSize, double errorMax, std::string saveDir,
     const G4String& name, G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field),
-m_comMin(comMin), m_errorMax(errorMax), m_save(save), m_useGP(true)
+m_comMin(comMin), m_useGP(true), m_errorMax(errorMax), m_saveDir(saveDir)
 {
     m_gp = new GaussianProcess(gpDir);
 }
@@ -36,10 +37,22 @@ PhotonProcess::~PhotonProcess()
 #ifdef USEGP
     if(m_useGP)
     {
+        if (m_saveDir != "")
+        {
+            m_gp->save(m_saveDir);
+        }
         delete m_gp;
     }
 #endif
 }
+
+#ifdef USEGP
+void PhotonProcess::setParamsGP(const Vector<double>& inputNorm,
+    double outputNorm)
+{
+    m_gp->setNormParams(inputNorm, outputNorm);
+}
+#endif
 
 G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
          G4ForceCondition*)
@@ -62,7 +75,8 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
 
     /* Find the rotation matrices that rotate the gamma ray onto
        the z axis */
-    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(particleDirection);
+    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1)
+        .cross(particleDirection);
     double rotationAngle = particleDirection.angle(G4ThreeVector(0, 0, 1));
     m_rotaion = G4RotationMatrix(rotationAxis,
             rotationAngle);
@@ -112,12 +126,15 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             m_gp->run(blockID, {dynamicEnergy}, gpOut);
         } else
         {
-            m_gp->run(blockID, {dynamicEnergy, dynamicTheta, dynamicPhi}, gpOut);
+            m_gp->run(blockID, {dynamicEnergy, dynamicTheta, dynamicPhi},
+                gpOut);
         }
+        std::cout << "Value: " << gpOut[0] << std::endl;
+        std::cout << "Error: " << gpOut[1] << std::endl;
 
         if (gpOut[1] < m_errorMax)
         {
-            return gpOut[0];
+//            return gpOut[0];
         }
     }
 #endif
@@ -206,8 +223,8 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         }
     }
 #endif
-    std::cout << electron_mass_c2 << std::endl;
-    return meanPath;
+    std::cout << meanPath << std::endl;
+    return meanPath / 1000000;
 }
 
 void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,

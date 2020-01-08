@@ -29,10 +29,10 @@ m_logResgress(logResgress)
 
     // Set deult normilisation
     Vector<double> inputNorm = Vector<double>(m_inputSize);
-    for (int i = 0; i < m_inputSize; ++i) inputNorm[i] = 1.0;
+    for (int i = 0; i < m_inputSize; ++i) inputNorm[i] = 1000.0;
     if (m_logResgress)
     {
-        setNormParams(inputNorm, 10.0);
+        setNormParams(inputNorm, 1e100);
     } else
     {
         setNormParams(inputNorm, 1.0);
@@ -109,9 +109,9 @@ void GaussianProcess::setNormParams(const Vector<double>& inputNorm,
     double outputNorm)
 {
     m_inputNorm = inputNorm;
-    if(m_logResgress)
+    if (m_logResgress)
     {
-        m_outputNorm = std::log(outputNorm);
+        m_outputNorm = std::log10(outputNorm);
     } else
     {
         m_outputNorm = outputNorm;
@@ -133,16 +133,13 @@ void GaussianProcess::run(int gpID, const Vector<double>& input,
         }
         if (m_logResgress)
         {
-            output[0] = std::pow(10, m_gausProc[gpID]->f(input.begin())
-                * m_outputNorm);
-            output[1] = m_gausProc[gpID]->var(input.begin())
-                * (m_outputNorm * m_outputNorm);
+            output[0] = std::pow(10, m_gausProc[gpID]->f(input.begin()) * m_outputNorm);
+            output[1] = m_gausProc[gpID]->var(input.begin());
         } else
         {
             output[0] = m_gausProc[gpID]->f(input.begin())
                 * m_outputNorm;
-            output[1] = m_gausProc[gpID]->var(input.begin())
-                * (m_outputNorm * m_outputNorm);
+            output[1] = m_gausProc[gpID]->var(input.begin());
         }
     }
 }
@@ -159,7 +156,7 @@ void GaussianProcess::addData(int gpID, const Vector<double>& input,
 
     if (m_logResgress)
     {
-        m_output[gpID][m_trainCount[gpID]] = std::log(output) / m_outputNorm;
+        m_output[gpID][m_trainCount[gpID]] = std::log10(output) / m_outputNorm;
     } else
     {
         m_output[gpID][m_trainCount[gpID]] = output / m_outputNorm;
@@ -175,14 +172,15 @@ void GaussianProcess::addData(int gpID, const Vector<double>& input,
 
 void GaussianProcess::train(int gpID)
 {
+    std::ofstream test("./testGp.dat");
     std::cout << "Optimising GP " << gpID << "..." << std::endl;
     for (int i = 0; i < m_trainCount[gpID]; i++)
     {
-        std::cout << m_input[gpID][i] << " " << m_output[gpID][i] << std::endl;
+        test << m_input[gpID][i] << " " << m_output[gpID][i] << std::endl;
         m_gausProc[gpID]->add_pattern(m_input[gpID][i], m_output[gpID][i]);
     }
 
-    m_optimiser.maximize(m_gausProc[gpID], 200, 1);
+    m_optimiser.maximize(m_gausProc[gpID], 100, 1);
     m_trainCount[gpID] = 0;
     m_switch[gpID] = true;
     std::cout << "Optimisation complete!" << std::endl;

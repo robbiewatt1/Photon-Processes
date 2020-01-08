@@ -17,18 +17,18 @@ PhotonProcess(field, comMin, "ComptonScatter")
 
 #ifdef USEGP
 ComptonScatter::ComptonScatter(PhotonField* field,
-    const std::string& dataFile, int trainSize, double errorMax, bool save,
-    double comMin):
-PhotonProcess(field, comMin, trainSize, errorMax, save, "ComptonScatter")
+    const std::string& dataFile, int trainSize, double errorMax, double comMin,
+    std::string saveDir):
+PhotonProcess(field, comMin, trainSize, errorMax, saveDir, "ComptonScatter")
 {
     openDataFile(dataFile);
 }
 
 ComptonScatter::ComptonScatter(PhotonField* field,
     const std::string& dataFile, const G4String& gpDir, int trainSize,
-    double errorMax, bool save, double comMin):
+    double errorMax, double comMin, std::string saveDir):
 PhotonProcess(field, comMin, gpDir, trainSize, errorMax,
-    save, "ComptonScatter")
+    saveDir, "ComptonScatter")
 {
     openDataFile(dataFile);
 }

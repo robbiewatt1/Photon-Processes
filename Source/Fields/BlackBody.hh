@@ -22,9 +22,8 @@ public:
     /* Black-body fields are isotroipic */ 
     bool isIsotropic() const override {return true;}
 
-    /* returns the dimensionality of the field. i.e 2 for isotropic
-       or 3 for nonisotropic */
-    int fieldDimensions() const override {return 2;}
+    /* returns the dimensionality of the field. */
+    int fieldDimensions() const override {return 1;}
 
     /* Override to give warnings as BB doesnt return
        phi or have an angular density */

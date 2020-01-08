@@ -17,20 +17,22 @@ public:
 
 #ifdef USEGP
     explicit PhotonProcess(PhotonField* field, double comMin,
-        int trainSize, double errorMax, bool save,
+        int trainSize, double errorMax, std::string saveDir,
         const G4String& name, G4ProcessType type = fUserDefined);
 
     explicit PhotonProcess(PhotonField* field,
         double comMin, const G4String& gpDir,
-        int trainSize, double errorMax, bool save,
+        int trainSize, double errorMax, std::string saveDir,
         const G4String& name,
         G4ProcessType type = fUserDefined);
 #endif
 
     virtual ~PhotonProcess();
 
+#ifdef USEGP
     /* Method to set the paramters used by the gaussian process */
-    void setParamsGP(bool save, int trainSize, double errorMax);
+    void setParamsGP(const Vector<double>& inputNorm, double outputNorm);
+#endif
 
     /* Method to load a pre-saved GP from a file */
     void loadGP(std::string gpDir);
@@ -98,7 +100,7 @@ protected:
 
 #ifdef USEGP
     double m_errorMax;       // Max eroor before using GP
-    bool m_save;             // Bool deciding if GP is saved
+    std::string m_saveDir;   // Where GP is saved
     GaussianProcess* m_gp;   // GP class handling the Gaussian Process
 #endif
 

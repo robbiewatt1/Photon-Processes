@@ -13,14 +13,14 @@ PhotonProcess(field, comMin, "BreitWheeler")
 
 #ifdef USEGP
 BreitWheeler::BreitWheeler(PhotonField* field, int trainSize,
-    double errorMax, bool save, double comMin):
-PhotonProcess(field, comMin, trainSize, errorMax, save, "BreitWheeler")
+    double errorMax, double comMin, std::string saveDir):
+PhotonProcess(field, comMin, trainSize, errorMax, saveDir, "BreitWheeler")
 {
 }
 
 BreitWheeler::BreitWheeler(PhotonField* field, const G4String& gpDir,
-    int trainSize, double errorMax, bool save, double comMin):
-PhotonProcess(field, comMin, gpDir, trainSize, errorMax, save, "BreitWheeler")
+    int trainSize, double errorMax, double comMin, std::string saveDir):
+PhotonProcess(field, comMin, gpDir, trainSize, errorMax, saveDir, "BreitWheeler")
 {
 }
 #endif
@@ -84,7 +84,6 @@ G4VParticleChange* BreitWheeler::PostStepDoIt(const G4Track& aTrack,
         * photonEnergy + 2.0 * gammaEnergy * photonEnergy
         * std::cos(photonTheta)) / (gammaEnergy * gammaEnergy + photonEnergy
             * photonEnergy + 2.0 * gammaEnergy * photonEnergy));
-    std::cout << beta << std::endl;
     electronVector.boostZ(beta);
     positronVector.boostZ(beta);
 
@@ -113,7 +112,6 @@ G4VParticleChange* BreitWheeler::PostStepDoIt(const G4Track& aTrack,
     aParticleChange.ProposeMomentumDirection(G4ThreeVector(0,0,0));
     aParticleChange.ProposeEnergy(0.);
     aParticleChange.ProposeTrackStatus(fStopAndKill);
-
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 }
 
