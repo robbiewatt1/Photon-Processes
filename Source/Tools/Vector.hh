@@ -260,7 +260,7 @@ class Vector
             out << "[ ";
             for(int i = 0; i < vector.m_size; i++)
             {
-                out << std::fixed << vector.m_data[i] << ", ";
+                out << vector.m_data[i] << ", ";
                 if(i == vector.m_size - 1)
                 {
                     out << "]" << std::endl;

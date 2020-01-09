@@ -18,8 +18,8 @@ public:
 
     /* GP constructor using previously trained GP */
     explicit PhotonScatter(PhotonField* field, const std::string& dataFile,
-        const G4String& gpDir, int trainSize, double errorMax,
-        double comMin, std::string saveDir = "");
+        const G4String& gpDir, double errorMax, double comMin,
+        std::string saveDir = "");
 #endif
 
     ~PhotonScatter();  
@@ -56,7 +56,6 @@ protected:
        is returned */
     double centreOfMassTheta(double comEnergy, double dynamicEnergy,
         double staticEnergy) const override;
-
 
 private:
     /* Opens the file containing the differential

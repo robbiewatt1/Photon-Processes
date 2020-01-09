@@ -19,8 +19,9 @@ PhotonProcess(field, comMin, trainSize, errorMax, saveDir, "BreitWheeler")
 }
 
 BreitWheeler::BreitWheeler(PhotonField* field, const G4String& gpDir,
-    int trainSize, double errorMax, double comMin, std::string saveDir):
-PhotonProcess(field, comMin, gpDir, trainSize, errorMax, saveDir, "BreitWheeler")
+    double errorMax, double comMin, std::string saveDir):
+PhotonProcess(field, comMin, gpDir, errorMax, saveDir,
+    "BreitWheeler")
 {
 }
 #endif
@@ -159,5 +160,5 @@ double BreitWheeler::centreOfMassTheta(double comEnergy,
     double dynamicEnergy, double staticEnergy) const
 {
     return std::acos(1.0 - 2.0 * electron_mass_c2 * electron_mass_c2
-        * comEnergy / ( dynamicEnergy * staticEnergy));
+        * comEnergy / (dynamicEnergy * staticEnergy));
 }

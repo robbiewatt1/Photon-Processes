@@ -23,7 +23,7 @@ m_comMin(comMin), m_useGP(true), m_errorMax(errorMax), m_saveDir(saveDir)
 }
 
 PhotonProcess::PhotonProcess(PhotonField* field,  double comMin,
-    const G4String& gpDir, int trainSize, double errorMax, std::string saveDir,
+    const G4String& gpDir, double errorMax, std::string saveDir,
     const G4String& name, G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field),
 m_comMin(comMin), m_useGP(true), m_errorMax(errorMax), m_saveDir(saveDir)
@@ -129,12 +129,9 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             m_gp->run(blockID, {dynamicEnergy, dynamicTheta, dynamicPhi},
                 gpOut);
         }
-        std::cout << "Value: " << gpOut[0] << std::endl;
-        std::cout << "Error: " << gpOut[1] << std::endl;
-
         if (gpOut[1] < m_errorMax)
         {
-//            return gpOut[0];
+            return gpOut[0];
         }
     }
 #endif
@@ -224,7 +221,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
     }
 #endif
     std::cout << meanPath << std::endl;
-    return meanPath / 1000000;
+    return meanPath / 1e8;
 }
 
 void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,

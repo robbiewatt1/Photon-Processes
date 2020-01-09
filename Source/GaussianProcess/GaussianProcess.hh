@@ -39,13 +39,9 @@ public:
 
 private:
     Vector<libgp::GaussianProcess*> m_gausProc; // Vector of GPS
-    Matrix<Eigen::VectorXd> m_input;            // Input training data
-    int m_gpSize;                               // Number of GPs used
-    Matrix<double> m_output;             // Output
-    Vector<bool> m_switch;                      // bool checking if trained
-    Vector<int> m_trainCount;         // Count how many traing points saved
-    int m_trainSize;                  // Points aved before being trained
-    int m_inputSize;                  // Dimensions of input to GP
+    Vector<bool> m_switch;             // bool checking if trained
+    Vector<int> m_trainCount;         // Number of training data points
+    Vector<int> m_trainSize;          // Max pointed before training
     libgp::RProp m_optimiser;         // Class to optimise GP
     Vector<double> m_inputNorm;       // Normilisation of input
     double m_outputNorm;              // Normilisation of output

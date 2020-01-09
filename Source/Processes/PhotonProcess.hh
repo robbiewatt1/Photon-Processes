@@ -20,9 +20,8 @@ public:
         int trainSize, double errorMax, std::string saveDir,
         const G4String& name, G4ProcessType type = fUserDefined);
 
-    explicit PhotonProcess(PhotonField* field,
-        double comMin, const G4String& gpDir,
-        int trainSize, double errorMax, std::string saveDir,
+    explicit PhotonProcess(PhotonField* field, double comMin,
+        const G4String& gpDir, double errorMax, std::string saveDir,
         const G4String& name,
         G4ProcessType type = fUserDefined);
 #endif

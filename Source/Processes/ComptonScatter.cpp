@@ -24,11 +24,9 @@ PhotonProcess(field, comMin, trainSize, errorMax, saveDir, "ComptonScatter")
     openDataFile(dataFile);
 }
 
-ComptonScatter::ComptonScatter(PhotonField* field,
-    const std::string& dataFile, const G4String& gpDir, int trainSize,
-    double errorMax, double comMin, std::string saveDir):
-PhotonProcess(field, comMin, gpDir, trainSize, errorMax,
-    saveDir, "ComptonScatter")
+ComptonScatter::ComptonScatter(PhotonField* field, const std::string& dataFile,
+    const G4String& gpDir, double errorMax, double comMin, std::string saveDir):
+PhotonProcess(field, comMin, gpDir, errorMax, saveDir, "ComptonScatter")
 {
     openDataFile(dataFile);
 }

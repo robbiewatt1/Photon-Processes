@@ -52,14 +52,14 @@ double Numerics::interpolate1D(const Vector<double>& sampleX,
     int closestIndex[2];
     if (queryX < sampleX[0])
     {
-        std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl;
+//        std::cout << "Warning: Extrapolation used in interpolate1D()"
+//            << std::endl;
         closestIndex[0] = 0;
         closestIndex[1] = 1;
     } else if (queryX > *sampleX.end())
     {
-        std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl;
+//        std::cout << "Warning: Extrapolation used in interpolate1D()"
+ //           << std::endl;
         closestIndex[0] = sampleSize - 2;
         closestIndex[1] = sampleSize - 1;      
     } else
@@ -90,14 +90,14 @@ double Numerics::interpolate2D(const Vector<double>& sampleX,
     int closestIndexX[2];
     if (queryPoint[0] < sampleX[0])
     {
-        std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl;
+//        std::cout << "Warning: Extrapolation used in interpolate2D()"
+//            << std::endl;
         closestIndexX[0] = 0;
         closestIndexX[1] = 1;
     } else if (queryPoint[0] > *sampleX.end())
     {
-        std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl;
+//        std::cout << "Warning: Extrapolation used in interpolate2D()"
+//            << std::endl;
         closestIndexX[0] = sampleSize[0] - 2;
         closestIndexX[1] = sampleSize[0] - 1;      
     } else
@@ -115,14 +115,14 @@ double Numerics::interpolate2D(const Vector<double>& sampleX,
     int closestIndexY[2];
     if (queryPoint[1] < sampleY[0])
     {
-        std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl;
+//        std::cout << "Warning: Extrapolation used in interpolate2D()"
+//            << std::endl;
         closestIndexY[0] = 0;
         closestIndexY[1] = 1;
     } else if (queryPoint[1] > *sampleY.end())
     {
-        std::cout << "Warning: Extrapolation used in interpolate2D()"
-            << std::endl;
+//        std::cout << "Warning: Extrapolation used in interpolate2D()"
+//            << std::endl;
         closestIndexY[0] = sampleSize[1] - 2;
         closestIndexY[1] = sampleSize[1] - 1;
     } else

@@ -9,19 +9,16 @@ public:
     explicit BreitWheeler(PhotonField* field, double comMin = 1.0);
 
 #ifdef USEGP
-    explicit BreitWheeler(PhotonField* field,
-        int trainSize, double errorMax,
+    explicit BreitWheeler(PhotonField* field, int trainSize, double errorMax,
         double comMin = 1.0, std::string saveDir = "");
 
-    explicit BreitWheeler(PhotonField* field,
-        const G4String& gpDir, int trainSize, double errorMax,
-        double comMin = 1.0, std::string saveDir = "");
+    explicit BreitWheeler(PhotonField* field, const G4String& gpDir,
+        double errorMax, double comMin = 1.0, std::string saveDir = "");
 #endif
 
     ~BreitWheeler();
 
-    G4bool IsApplicable(const G4ParticleDefinition&
-        particle) const override;
+    G4bool IsApplicable(const G4ParticleDefinition& particle) const override;
     
     G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
         const G4Step& aStep) override;

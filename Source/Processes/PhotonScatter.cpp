@@ -22,9 +22,9 @@ PhotonProcess(field, comMin, trainSize, errorMax, saveDir, "PhotonScatter")
 }
 
 PhotonScatter::PhotonScatter(PhotonField* field,
-    const std::string& dataFile, const G4String& gpDir, int trainSize,
-    double errorMax, double comMin, std::string saveDir):
-PhotonProcess(field, comMin, gpDir, trainSize, errorMax,
+    const std::string& dataFile, const G4String& gpDir, double errorMax,
+    double comMin, std::string saveDir):
+PhotonProcess(field, comMin, gpDir, errorMax,
     saveDir, "PhotonScatter")
 {
     openDataFile(dataFile);
@@ -70,20 +70,20 @@ G4VParticleChange* PhotonScatter::PostStepDoIt(const G4Track& aTrack,
     double pairTheta = samplePairAngle(comEnergy);
 
     G4LorentzVector gamma1Vector = G4LorentzVector(
-        std::sin(pairTheta) * std::cos(pairPhi),
-        std::sin(pairTheta) * std::sin(pairPhi),
-        std::cos(pairTheta), pairEnergy);
+        std::sin(pairTheta) * std::cos(pairPhi) * pairEnergy,
+        std::sin(pairTheta) * std::sin(pairPhi) * pairEnergy,
+        std::cos(pairTheta) * pairEnergy, pairEnergy);
     G4LorentzVector gamma2Vector = G4LorentzVector(
-        -std::sin(pairTheta) * std::cos(pairPhi),
-        -std::sin(pairTheta) * std::sin(pairPhi),
-        -std::cos(pairTheta), pairEnergy);
+        -std::sin(pairTheta) * std::cos(pairPhi) * pairEnergy,
+        -std::sin(pairTheta) * std::sin(pairPhi) * pairEnergy,
+        -std::cos(pairTheta) * pairEnergy, pairEnergy);
 
-    double beta = std::sqrt(gammaEnergy * gammaEnergy + photonEnergy
+    double beta = std::sqrt((gammaEnergy * gammaEnergy + photonEnergy
         * photonEnergy + 2.0 * gammaEnergy * photonEnergy
-        * std::cos(photonTheta) / (gammaEnergy * gammaEnergy + photonEnergy
+        * std::cos(photonTheta)) / (gammaEnergy * gammaEnergy + photonEnergy
             * photonEnergy + 2.0 * gammaEnergy * photonEnergy));
-    gamma1Vector.boostZ(-beta);
-    gamma2Vector.boostZ(-beta);
+    gamma1Vector.boostZ(beta);
+    gamma2Vector.boostZ(beta);
 
     /* Apply rotation into frame with gamma along z axis */  
     double thetaGamma = std::atan2(photonEnergy * std::sin(photonTheta),
@@ -110,7 +110,6 @@ G4VParticleChange* PhotonScatter::PostStepDoIt(const G4Track& aTrack,
     aParticleChange.ProposeMomentumDirection(G4ThreeVector(0,0,0));
     aParticleChange.ProposeEnergy(0.);
     aParticleChange.ProposeTrackStatus(fStopAndKill);
-
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 }
 
@@ -158,7 +157,7 @@ double PhotonScatter::centreOfMassTheta(double comEnergy,
     double dynamicEnergy, double staticEnergy) const
 {
     return std::acos(1.0 - 2.0 * electron_mass_c2 * electron_mass_c2
-        * comEnergy / ( dynamicEnergy * staticEnergy));
+        * comEnergy / (dynamicEnergy * staticEnergy));
 }
 
 void PhotonScatter::openDataFile(const std::string& fileName)
@@ -168,5 +167,3 @@ void PhotonScatter::openDataFile(const std::string& fileName)
     m_totalCrossSection.open(fileName, "/TotalCrossSection");
     m_diffCrossSection.open(fileName, "/DiffCrossSection");
 }
-
-
