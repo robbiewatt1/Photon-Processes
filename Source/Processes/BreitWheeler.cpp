@@ -62,8 +62,7 @@ G4VParticleChange* BreitWheeler::PostStepDoIt(const G4Track& aTrack,
     /* Photon properties */
     double photonEnergy, comEnergy, photonTheta, photonPhi;
     samplePhotonField(blockID, gammaEnergy, photonEnergy, comEnergy, photonPhi);
-    photonTheta = std::acos(1.0 - 2.0 * electron_mass_c2 * electron_mass_c2 
-            * comEnergy / (gammaEnergy * photonEnergy));
+    photonTheta = centreOfMassTheta(comEnergy, gammaEnergy, staticEnergy);
 
     /* Find particles properties in the COM frame*/
     double pairEnergy = electron_mass_c2 * std::sqrt(comEnergy);

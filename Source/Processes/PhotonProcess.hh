@@ -48,6 +48,10 @@ public:
     virtual G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
             const G4Step& aStep) = 0;
 
+    /* Method to set the cross-section multiplier */
+    void setCrossSectionMultiplier(double multiplier)
+        {m_multiplier = multiplier;}
+
 /* The following methods must be overriden for a new process */
 protected:
 
@@ -96,6 +100,7 @@ protected:
     double m_minDensity;       // Min angula density of interest
     G4RotationMatrix m_rotaion; // Rotation matrix to gamma frame
     bool m_useGP;            // Bool turing GP on and off
+    double m_multiplier;    // Increase / decrese cross-section
 
 #ifdef USEGP
     double m_errorMax;       // Max eroor before using GP

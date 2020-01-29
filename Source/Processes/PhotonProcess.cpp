@@ -6,7 +6,7 @@
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin,
     const G4String& name, G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field), m_comMin(comMin),
-m_useGP(false)
+m_useGP(false), m_multiplier(1)
 {
 }
 
@@ -15,7 +15,8 @@ PhotonProcess::PhotonProcess(PhotonField* field, double comMin, int trainSize,
     double errorMax, std::string saveDir, const G4String& name,
     G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field),
-m_comMin(comMin), m_useGP(true), m_errorMax(errorMax), m_saveDir(saveDir)
+m_comMin(comMin), m_useGP(true), m_multiplier(1), m_errorMax(errorMax),
+m_saveDir(saveDir)
 {
     int numBlocks = m_field->getNumBlocks();
     int dims = m_field->fieldDimensions();
@@ -26,7 +27,8 @@ PhotonProcess::PhotonProcess(PhotonField* field,  double comMin,
     const G4String& gpDir, double errorMax, std::string saveDir,
     const G4String& name, G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field),
-m_comMin(comMin), m_useGP(true), m_errorMax(errorMax), m_saveDir(saveDir)
+m_comMin(comMin), m_useGP(true), m_multiplier(1), m_errorMax(errorMax),
+m_saveDir(saveDir)
 {
     m_gp = new GaussianProcess(gpDir);
 }
@@ -131,7 +133,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         }
         if (gpOut[1] < m_errorMax)
         {
-            return gpOut[0];
+            return gpOut[0] / m_multiplier;
         }
     }
 #endif
@@ -220,8 +222,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         }
     }
 #endif
-    std::cout << meanPath << std::endl;
-    return meanPath / 1e8;
+    return meanPath / m_multiplier;
 }
 
 void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
@@ -239,7 +240,7 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
                 m_field->getEnergy()[i], pi);
             if (s > m_comMin)
             {
-                currentDensity = 2.0 * crossSection(s)
+                currentDensity = crossSection(s)
                     * m_field->getEnergyDensity()[i]; 
             }
             maxDensity = currentDensity > maxDensity ? currentDensity
@@ -262,7 +263,7 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
             } while (comEnergy > centreOfMassEnergy(dynamicEnergy,
                 photonEnergy, pi));
             photonPhi = G4UniformRand() * 2.0 * pi;
-            density = 2.0 * crossSection(comEnergy)
+            density = crossSection(comEnergy)
                 * Numerics::interpolate1D(m_field->getEnergy(),
                     m_field->getEnergyDensity(), photonEnergy);
             randDensity = G4UniformRand() * maxDensity;
@@ -331,7 +332,7 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
 
 double PhotonProcess::samplePairAngle(double comEnergy)
 {
-    double maxDensity = diffCrossSection(comEnergy, pi);
+    double maxDensity = diffCrossSection(comEnergy, 0);
     double randAngle;
     double randDensity;
     double angleDensity;

@@ -7,6 +7,7 @@
 #include "G4PhysicalConstants.hh"
 #include "G4LorentzVector.hh"
 
+#include <fstream>
 
 ComptonScatter::ComptonScatter(PhotonField* field,
     const std::string& dataFile, double comMin):
@@ -56,7 +57,7 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
         ->GetConstProperty("BlockID");
 
     /* Lepton properties */
-    double leptonEnergyIn = aDynamicLepton->GetKineticEnergy();
+    double leptonEnergyIn = aDynamicLepton->GetTotalEnergy();
     G4ThreeVector leptonDirection = aDynamicLepton->GetMomentumDirection();
 
     /* Rotations to gamma frame */
@@ -67,51 +68,60 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
         -rotationAngle);
 
     /* Photon properties */
-    double photonEnergyIn, comEnergy, photonTheta, photonPhi;
+    double photonEnergyIn, comEnergy, photonThetaIn, photonPhiIn;
     samplePhotonField(blockID, leptonEnergyIn, photonEnergyIn, comEnergy,
-        photonPhi);
-    photonTheta = std::acos((((comEnergy - 1.0) * electron_mass_c2
-        * electron_mass_c2 ) / (2.0 * leptonEnergyIn * photonEnergyIn) - 1.0)
-        / (std::sqrt(1.0 - electron_mass_c2 * electron_mass_c2
-            / (leptonEnergyIn * leptonEnergyIn))));
+        photonPhiIn);
+    photonThetaIn = centreOfMassTheta(comEnergy, leptonEnergyIn,
+        photonEnergyIn);
 
     /* Find particles properties in the COM frame*/
-    double photonEnergyOut = (comEnergy - 1.0) / (2.0 * std::sqrt(comEnergy));
-    double lepronEnergyOut = (comEnergy + 1.0) / (2.0 * std::sqrt(comEnergy));
+    double photonEnergyOut = electron_mass_c2 * (comEnergy - 1.0)
+        / (2.0 * std::sqrt(comEnergy));
+    double lepronEnergyOut = electron_mass_c2 * (comEnergy + 1.0)
+        / (2.0 * std::sqrt(comEnergy));
+    double leptonMomentumOut = std::sqrt(lepronEnergyOut * lepronEnergyOut
+        - electron_mass_c2 * electron_mass_c2);
     double photonPhiOut   = 2.0 * pi * G4UniformRand();
-    double photonThetaOut = samplePairAngle(comEnergy);
+    double photonThetaOut = samplePairAngle(10);
+
+    std::ofstream file("./test.dat", std::fstream::app);
+    file << photonThetaOut << "\n";
 
     G4LorentzVector photonVector = G4LorentzVector(
-        std::sin(photonThetaOut) * std::cos(photonPhiOut),
-        std::sin(photonThetaOut) * std::sin(photonPhiOut),
-        std::cos(photonThetaOut), photonEnergyOut);
+        std::sin(photonThetaOut) * std::cos(photonPhiOut) * photonEnergyOut,
+        std::sin(photonThetaOut) * std::sin(photonPhiOut) * photonEnergyOut,
+        std::cos(photonThetaOut) * photonEnergyOut, photonEnergyOut);
     G4LorentzVector leptonVector = G4LorentzVector(
-        -std::sin(photonThetaOut) * std::cos(photonPhiOut),
-        -std::sin(photonThetaOut) * std::sin(photonPhiOut),
-        -std::cos(photonThetaOut), lepronEnergyOut);
-
+        -std::sin(photonThetaOut) * std::cos(photonPhiOut) * leptonMomentumOut,
+        -std::sin(photonThetaOut) * std::sin(photonPhiOut) * leptonMomentumOut,
+        -std::cos(photonThetaOut) * leptonMomentumOut, lepronEnergyOut);
+/*
     double beta = std::sqrt((photonEnergyIn * photonEnergyIn
         + leptonEnergyIn * leptonEnergyIn) / (electron_mass_c2
         * electron_mass_c2) - 1.0 - 2.0 * leptonEnergyIn * photonEnergyIn
         * std::sqrt(1.0 - electron_mass_c2 * electron_mass_c2
             / (leptonEnergyIn * leptonEnergyIn))
-        * std::cos(photonTheta)) * electron_mass_c2
+        * std::cos(photonThetaIn)) * electron_mass_c2
         / (photonEnergyIn + leptonEnergyIn);
-    photonVector.boostZ(-beta);
-    leptonVector.boostZ(-beta);
+*/
+    double beta = std::sqrt(leptonEnergyIn * leptonEnergyIn -  electron_mass_c2
+        * electron_mass_c2 + photonEnergyIn * photonEnergyIn + 2.0
+        * std::sqrt(leptonEnergyIn * leptonEnergyIn - electron_mass_c2
+            * electron_mass_c2) * photonEnergyIn * std::cos(photonThetaIn))
+        / (leptonEnergyIn + photonEnergyIn);
+    photonVector.boostZ(beta);
+    leptonVector.boostZ(beta);
 
     /* Apply rotation into frame with lepton along z axis */  
-
-    double leptonTheta = std::atan2(photonEnergyIn * std::sin(photonTheta),
+    double leptonTheta = std::atan2(photonEnergyIn * std::sin(photonThetaIn),
         (std::sqrt(leptonEnergyIn * leptonEnergyIn - 1.0) - photonEnergyIn
-            * std::cos(photonTheta)));
-
+            * std::cos(photonThetaIn)));
     photonVector.rotateY(leptonTheta);
     leptonVector.rotateY(leptonTheta);
 
     /* Apply rotation around the gamma axis by -photonPhi */
-    photonVector.rotateZ(-photonPhi);
-    leptonVector.rotateZ(-photonPhi);
+    photonVector.rotateZ(-photonPhiIn);
+    leptonVector.rotateZ(-photonPhiIn);
 
     /* Apply final rotation into simulation frame */
     photonVector = rotateBack(photonVector);
@@ -124,7 +134,9 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
     aParticleChange.AddSecondary(photon);
     aParticleChange.ProposeMomentumDirection(leptonVector.v().unit());
     aParticleChange.ProposeEnergy(leptonVector[3]);
-    aParticleChange.ProposeTrackStatus(fStopAndKill);
+
+    std::cout << photonVector << std::endl;
+    std::cout << leptonVector << std::endl;
 
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 }
@@ -151,7 +163,6 @@ double ComptonScatter::centreOfMassEnergy(double dynamicEnergy,
         / (electron_mass_c2 * electron_mass_c2);
 }
 
-
 double ComptonScatter::centreOfMassStatic(double comEnergy,
     double dynamicEnergy, double theta) const
 { 
@@ -165,7 +176,6 @@ double ComptonScatter::centreOfMassDynamic(double comEnergy,
 {
     return 0;
 }
-
 
 double ComptonScatter::centreOfMassTheta(double comEnergy,
     double dynamicEnergy, double staticEnergy) const

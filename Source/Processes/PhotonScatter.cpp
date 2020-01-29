@@ -52,7 +52,7 @@ G4VParticleChange* PhotonScatter::PostStepDoIt(const G4Track& aTrack,
     G4ThreeVector gammaDirection = aDynamicGamma->GetMomentumDirection();
 
     /* Rotations to gamma frame */
-    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(gammaDirection);
+    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(-gammaDirection);
     double rotationAngle = gammaDirection.angle(G4ThreeVector(0, 0, 1));
     m_rotaion  = G4RotationMatrix(rotationAxis, rotationAngle);
     G4RotationMatrix rotateBack = G4RotationMatrix(rotationAxis,
