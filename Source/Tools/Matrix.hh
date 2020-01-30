@@ -36,6 +36,20 @@ class Matrix
             }
         }
 
+        Matrix(const std::initializer_list<std::initializer_list<T>> list):
+        m_nRow(list.size()), m_nColumn(list.begin()->size())
+        {
+            m_data = new T [m_nRow * m_nColumn];
+            int i = 0, j = 0;
+            for (const auto& l : list)
+            {
+                for (const auto& v : l)
+                {
+                    m_data[i + j * m_nRow]
+                }
+            }
+        }
+
         // Copy constructor 
         Matrix(const Matrix &matrix)
         {
