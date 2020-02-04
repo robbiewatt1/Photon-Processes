@@ -263,7 +263,7 @@ class Vector
                 out << vector.m_data[i] << ", ";
                 if(i == vector.m_size - 1)
                 {
-                    out << "]" << std::endl;
+                    out << "]";
                 }
             }
             return out;

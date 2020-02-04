@@ -61,7 +61,7 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
     G4ThreeVector leptonDirection = aDynamicLepton->GetMomentumDirection();
 
     /* Rotations to gamma frame */
-    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(leptonDirection);
+    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(-leptonDirection);
     double rotationAngle = leptonDirection.angle(G4ThreeVector(0, 0, 1));
     m_rotaion  = G4RotationMatrix(rotationAxis, rotationAngle);
     G4RotationMatrix rotateBack = G4RotationMatrix(rotationAxis,

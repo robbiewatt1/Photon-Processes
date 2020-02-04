@@ -1,9 +1,10 @@
 #include "Laser.hh"
+#include "G4PhysicalConstants.hh"
 #include <cmath>
 
-Laser::Laser(double energy, double density, Vector<double> direction):
-m_energyRes(1), m_angleRes(1), 
+Laser::Laser(double energy, double energyDensity, Vector<double> direction)
 {
+
     // check that Direction is a three vecotr
     if (direction.size() != 3)
     {
@@ -13,11 +14,13 @@ m_energyRes(1), m_angleRes(1),
     double theta = std::acos(direction[2] / std::sqrt(direction[0] *
         direction[0] + direction[1] * direction[1] + direction[2]
         * direction[2]));
-    double phi = std::atan2(direction[1] / (direction[1] +1e-99));
+    double phi = std::atan2(direction[1], (direction[1] +1e-99));
 
+    m_energyRes = 1;
+    m_angleRes = 1;
     m_energy = {energy};
-    m_energyDensity = {density};
-    m_theta = {theta}
-    m_phi = {phi}
-    Matrix<double> density = {{1}};
+    m_energyDensity = {energyDensity};
+    m_theta = {theta};
+    m_phi = {phi};
+    m_angleDensity = {{{1.0}}};
 }

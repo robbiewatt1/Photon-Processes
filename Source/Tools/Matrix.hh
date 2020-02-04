@@ -45,7 +45,7 @@ class Matrix
             {
                 for (const auto& v : l)
                 {
-                    m_data[i + j * m_nRow]
+                    m_data[i + j * m_nRow] = v;
                 }
             }
         }
@@ -363,7 +363,7 @@ class Matrix
                 out << "\n  ";    
             }else if(i == matrix.m_nRow * matrix.m_nColumn - 1)
             {
-                out << "]" << std::endl;
+                out << "]";
             }
         }
         return out;

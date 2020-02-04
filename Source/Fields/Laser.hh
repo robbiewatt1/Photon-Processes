@@ -4,7 +4,6 @@
 #include "PhotonField.hh"
 #include "Vector.hh"
 
-
 class Laser: public PhotonField
 {
 public:

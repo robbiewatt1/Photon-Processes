@@ -88,36 +88,6 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         *m_field->getEnergy().end(), pi);
     if(comMax < m_comMin) return 1e99;
 
-    /* If nonIsotropic, check if field is dense above COM threshold */
-    /* Return 1e99 if angle is also too low. */
-    /*
-    if(!m_field->isIsotropic())
-    {
-        int thetaMinIndex = Numerics::vectorIndex(m_field->getTheta(), thetaMin);
-        for (int i = 0; i < angleRes; i++)
-        {
-            for (int j = thetaMinIndex + 1; j < angleRes; j++)
-            {
-                double angleIn = {m_field->getTheta()[j],
-                    m_field->getPhi()[i]};
-                double angleOut[2];
-                rotateThetaPhi(angleIn, angleOut, m_rotaion);
-                if (Numerics::interpolate2D(m_field->getTheta(),
-                    m_field->getPhi(), m_field->getAngleDensity(blockID),
-                    angleOut) > m_minDensity)
-                {
-                   goto isDense;
-                }
-            }
-            if (i == angleRes - 1)
-            {
-                return 1e99;
-            }
-        }
-    }
-    isDense:
-    */
-
 #ifdef USEGP
     if (m_useGP)
     {
@@ -169,10 +139,9 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             * pi * Numerics::simpsons(m_field->getEnergy(), energyInt));
     } else // Is anisotropic
     {
-        Vector<double> thetaInt(m_field->getAngleRes());
         Vector<double> phiInt(m_field->getAngleRes());
+        Vector<double> thetaInt(m_field->getAngleRes());
         Vector<double> energyInt(m_field->getEnergyRes());
-
         // Integral over photon energy epsilon
         for (int i = 0; i < m_field->getEnergyRes(); i++)
         {
@@ -186,25 +155,16 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                         m_field->getPhi()[k]};
                     double angleOut[2];
                     rotateThetaPhi(angleIn, angleOut, m_rotaion);
-                    phiInt[k] = Numerics::interpolate2D(m_field->getTheta(),
-                        m_field->getPhi(), m_field->getAngleDensity(blockID),
-                        angleOut);
+                    double comEnergy = centreOfMassEnergy(dynamicEnergy,
+                        m_field->getEnergy()[i], angleOut[0]);
+                    phiInt[k] = m_field->getAngleDensity(blockID)[j][k]
+                        * crossSection(comEnergy)
+                        * (1.0 - std::cos(angleOut[0]));
                 }
-                double comEnergy = centreOfMassEnergy(dynamicEnergy,
-                    m_field->getEnergy()[i], m_field->getTheta()[j]);
-                if (comEnergy > m_comMin)
-                {
-                    thetaInt[j] = crossSection(comEnergy) * (1.0
-                            - std::cos(m_field->getTheta()[j]))
-                        * std::sin(m_field->getTheta()[j])
-                        * Numerics::simpsons(m_field->getPhi(), phiInt);
-                } else 
-                {
-                    thetaInt[j] = 0;
-                }
+                thetaInt[j] = Numerics::simpsons(m_field->getPhi(), phiInt);
             }
             energyInt[i] = m_field->getEnergyDensity()[i]
-                * Numerics::simpsons(m_field->getTheta(), thetaInt);       
+                * Numerics::simpsons(m_field->getTheta(), thetaInt);
         }
         meanPath = 2.0 / (classic_electr_radius * classic_electr_radius
             * pi * Numerics::simpsons(m_field->getEnergy(), energyInt));
@@ -231,9 +191,9 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
     /* Find mode of distribution to bound sampling. Currently use a slow
        coordinate search here, might be better using a better method */
     /* first for isotrpoic fields */
-    double maxDensity(0), currentDensity(0);
     if(m_field->isIsotropic())
     {
+        double maxDensity(0), currentDensity(0);
         for (int i = 0; i < m_field->getEnergyRes(); i++)
         {
             double s = centreOfMassEnergy(dynamicEnergy,
@@ -246,7 +206,6 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
             maxDensity = currentDensity > maxDensity ? currentDensity
                         : maxDensity;
         }
-
         double photonEnergyMin = centreOfMassStatic(m_comMin,
             dynamicEnergy, pi);
         double comEnergyMax = centreOfMassEnergy(dynamicEnergy,
@@ -270,36 +229,49 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
         } while (randDensity > density);
     } else
     {
-        /* The field is no isotro::pic */
+        /* The field is no isotropic */
+        double maxDensity(0), currentDensity(0), maxTheta(0), minTheta(pi),
+            maxPhi(0), minPhi(2 * pi);
         for (int i = 0; i < m_field->getEnergyRes(); i++) // loop energy
         {
             for (int j = 0; j < m_field->getAngleRes(); j++) // loop theta
             {
                 for (int k = 0; k < m_field->getAngleRes(); k++) // loop phi
                 {
-                    double angleIn[2];
+                    double angleIn[] = {m_field->getTheta()[j],
+                        m_field->getPhi()[k]};
                     double angleOut[2];
                     rotateThetaPhi(angleIn, angleOut, m_rotaion);
-                    double s = centreOfMassEnergy(dynamicEnergy,
+                    double comEnergy = centreOfMassEnergy(dynamicEnergy,
                         m_field->getEnergy()[i], angleOut[0]);
-                    if (s > m_comMin)
-                    {
-                        currentDensity = crossSection(s)
-                            * m_field->getEnergyDensity()[i]
-                            * Numerics::interpolate2D(m_field->getTheta(),
-                                m_field->getPhi(),
-                                m_field->getAngleDensity(blockID), angleOut)
-                            * (1.0 - std::cos(angleOut[0]));
-                        maxDensity = currentDensity > maxDensity
-                            ? currentDensity : maxDensity;
-                    }
+                    currentDensity = m_field->getAngleDensity(blockID)[j][k]
+                        * crossSection(comEnergy)
+                        * (1.0 - std::cos(angleOut[0]))
+                        * m_field->getEnergyDensity()[i];
+                    maxTheta = angleOut[0] > maxTheta
+                        ? angleOut[0] : maxTheta;
+                    minTheta = angleOut[0] < minTheta
+                        ? angleOut[0] : minTheta;
+                    maxPhi = angleOut[1] > maxPhi
+                        ? angleOut[1] : maxPhi;
+                    minPhi = angleOut[1] < minPhi
+                        ? angleOut[1] : minPhi;
+                    maxDensity = currentDensity > maxDensity
+                        ? currentDensity : maxDensity;
                 }
             }
         }
+        // Find the limits for sampling from
         double photonEnergyMin = centreOfMassStatic(m_comMin,
-            dynamicEnergy, pi);
+            dynamicEnergy, maxTheta);
+        photonEnergyMin = m_field->getEnergy()[0] > photonEnergyMin
+            ? m_field->getEnergy()[0] : photonEnergyMin;
+        double comEnergyMin = centreOfMassEnergy(dynamicEnergy,
+            m_field->getEnergy()[0], minTheta);
+        comEnergyMin = m_comMin > comEnergyMin
+            ? comEnergyMin : comEnergyMin;
         double comEnergyMax = centreOfMassEnergy(dynamicEnergy,
-            *m_field->getEnergy().end(), pi);
+            *m_field->getEnergy().end(), maxTheta);
         double density, randDensity;
         do
         {   // While random density is too large
@@ -307,14 +279,13 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
             {   // While s, e combination not possible
                 photonEnergy = photonEnergyMin + G4UniformRand()
                         * (*m_field->getEnergy().end() - photonEnergyMin);
-                comEnergy = m_comMin + G4UniformRand()
-                    * (comEnergyMax - m_comMin);
+                comEnergy = comEnergyMin + G4UniformRand()
+                    * (comEnergyMax - comEnergyMin);
             } while (comEnergy > centreOfMassEnergy(dynamicEnergy,
-                photonEnergy, pi));
+                photonEnergy, maxTheta));
             double photonTheta = centreOfMassTheta(comEnergy, dynamicEnergy,
                 photonEnergy);
-            photonPhi = m_field->getPhi()[0] + G4UniformRand()
-                * (*m_field->getPhi().end() - m_field->getPhi()[0]);
+            photonPhi = minPhi + G4UniformRand() * (maxPhi - minPhi);
             double angleIn[] = {photonTheta, photonPhi};
             double angleOut[2];
             rotateThetaPhi(angleIn, angleOut, m_rotaion);

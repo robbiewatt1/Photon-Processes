@@ -53,7 +53,7 @@ G4VParticleChange* BreitWheeler::PostStepDoIt(const G4Track& aTrack,
     G4ThreeVector gammaDirection = aDynamicGamma->GetMomentumDirection();
 
     /* Rotations to gamma frame */
-    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(gammaDirection);
+    G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1).cross(-gammaDirection);
     double rotationAngle = gammaDirection.angle(G4ThreeVector(0, 0, 1));
     m_rotaion  = G4RotationMatrix(rotationAxis, rotationAngle);
     G4RotationMatrix rotateBack = G4RotationMatrix(rotationAxis,
@@ -62,7 +62,7 @@ G4VParticleChange* BreitWheeler::PostStepDoIt(const G4Track& aTrack,
     /* Photon properties */
     double photonEnergy, comEnergy, photonTheta, photonPhi;
     samplePhotonField(blockID, gammaEnergy, photonEnergy, comEnergy, photonPhi);
-    photonTheta = centreOfMassTheta(comEnergy, gammaEnergy, staticEnergy);
+    photonTheta = centreOfMassTheta(comEnergy, gammaEnergy, photonEnergy);
 
     /* Find particles properties in the COM frame*/
     double pairEnergy = electron_mass_c2 * std::sqrt(comEnergy);
@@ -117,10 +117,16 @@ G4VParticleChange* BreitWheeler::PostStepDoIt(const G4Track& aTrack,
 
 double BreitWheeler::crossSection(double comEnergy) const
 {
-    double beta = std::sqrt(1.0 - 1.0 / comEnergy);
-    return (1.0 - beta * beta) * ((3.0 - beta * beta * beta * beta)
-            * std::log((1.0 + beta) / (1.0 - beta)) - 2.0 * beta 
-            * (2.0 - beta * beta));
+    if (comEnergy < 1.0)
+    {
+        return 0;
+    } else
+    {
+        double beta = std::sqrt(1.0 - 1.0 / comEnergy);
+        return (1.0 - beta * beta) * ((3.0 - beta * beta * beta * beta)
+                * std::log((1.0 + beta) / (1.0 - beta)) - 2.0 * beta 
+                * (2.0 - beta * beta));
+    }
 }
 
 double BreitWheeler::diffCrossSection(double comEnergy, double theta) const

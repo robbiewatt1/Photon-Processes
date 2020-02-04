@@ -24,7 +24,8 @@ public:
 
     virtual const Vector<double>& getEnergy() const {return m_energy;}
 
-    virtual const Vector<double>& getEnergyDensity() const {return m_energyDensity;}
+    virtual const Vector<double>& getEnergyDensity() const {
+        return m_energyDensity;}
 
     virtual const Vector<double>& getTheta() const {return m_theta;}
 
