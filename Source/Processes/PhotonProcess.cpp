@@ -78,14 +78,14 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
     /* Find the rotation matrices that rotate the gamma ray onto
        the z axis */
     G4ThreeVector rotationAxis = G4ThreeVector(0, 0, 1)
-        .cross(particleDirection);
+        .cross(-particleDirection);
     double rotationAngle = particleDirection.angle(G4ThreeVector(0, 0, 1));
     m_rotaion = G4RotationMatrix(rotationAxis,
             rotationAngle);
 
     /* Check if max (head on) COM is too low */
     double comMax = centreOfMassEnergy(dynamicEnergy,
-        *m_field->getEnergy().end(), pi);
+        *m_field->getEnergy().end(), *m_field->getTheta().end());
     if(comMax < m_comMin) return 1e99;
 
 #ifdef USEGP
@@ -157,11 +157,18 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                     rotateThetaPhi(angleIn, angleOut, m_rotaion);
                     double comEnergy = centreOfMassEnergy(dynamicEnergy,
                         m_field->getEnergy()[i], angleOut[0]);
-                    phiInt[k] = m_field->getAngleDensity(blockID)[j][k]
-                        * crossSection(comEnergy)
-                        * (1.0 - std::cos(angleOut[0]));
+                    if (comEnergy > m_comMin)
+                    {
+                        phiInt[k] = m_field->getAngleDensity(blockID)[j][k]
+                            * crossSection(comEnergy)
+                            * (1.0 - std::cos(angleOut[0]));
+                    } else
+                    {
+                        phiInt[k] = 0;
+                    }
                 }
                 thetaInt[j] = Numerics::simpsons(m_field->getPhi(), phiInt);
+
             }
             energyInt[i] = m_field->getEnergyDensity()[i]
                 * Numerics::simpsons(m_field->getTheta(), thetaInt);
@@ -273,6 +280,7 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
         double comEnergyMax = centreOfMassEnergy(dynamicEnergy,
             *m_field->getEnergy().end(), maxTheta);
         double density, randDensity;
+
         do
         {   // While random density is too large
             do

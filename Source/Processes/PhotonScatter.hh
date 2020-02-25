@@ -30,7 +30,7 @@ public:
     G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
         const G4Step& aStep) override;
 
-protected:
+public:
     /* Returns the total cross-section for the process */
     double crossSection(double comEnergy) const override;
 

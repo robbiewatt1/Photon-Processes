@@ -81,7 +81,7 @@ protected:
     virtual double centreOfMassTheta(double comEnergy, double dynamicEnergy,
         double staticEnergy) const = 0;
 
-protected:
+public:
     /* Samples the energy, angle from the photon field */
     void samplePhotonField(int blockID, double gammaEnergy,
         double& photonEnergy, double& comEnergy, double& photonPhi) const;
