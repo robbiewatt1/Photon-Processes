@@ -65,7 +65,7 @@ G4VParticleChange* BreitWheeler::PostStepDoIt(const G4Track& aTrack,
     photonTheta = centreOfMassTheta(comEnergy, gammaEnergy, photonEnergy);
 
     /* Find particles properties in the COM frame*/
-    double pairEnergy = electron_mass_c2 * std::sqrt(comEnergy);
+    double pairEnergy = electron_mass_c2 * std::sqrt(comEnergy) / 2.0;
     double pairMomentum = std::sqrt(pairEnergy * pairEnergy
         - electron_mass_c2 * electron_mass_c2);
     double pairPhi   = 2.0 * pi * G4UniformRand();
@@ -122,7 +122,7 @@ double BreitWheeler::crossSection(double comEnergy) const
         return 0;
     } else
     {
-        double beta = std::sqrt(1.0 - 1.0 / comEnergy);
+        double beta = std::sqrt(1.0 - 4.0 / comEnergy);
         return (1.0 - beta * beta) * ((3.0 - beta * beta * beta * beta)
                 * std::log((1.0 + beta) / (1.0 - beta)) - 2.0 * beta 
                 * (2.0 - beta * beta));
@@ -131,7 +131,7 @@ double BreitWheeler::crossSection(double comEnergy) const
 
 double BreitWheeler::diffCrossSection(double comEnergy, double theta) const
 {
-    double beta = std::sqrt(1.0 - 1.0 / comEnergy);
+    double beta = std::sqrt(1.0 - 4.0 / comEnergy);
     double sinT = std::sin(theta);
     double cosT = std::cos(theta);
     return (beta / comEnergy) * (1.0 + 2.0 * beta * beta * sinT * sinT
@@ -143,27 +143,27 @@ double BreitWheeler::diffCrossSection(double comEnergy, double theta) const
 double BreitWheeler::centreOfMassEnergy(double dynamicEnergy,
     double staticEnergy, double theta) const
 {
-    return dynamicEnergy * staticEnergy * (1.0 - std::cos(theta))
-        / (2.0 * electron_mass_c2 * electron_mass_c2);
+    return 2.0 * dynamicEnergy * staticEnergy * (1.0 - std::cos(theta))
+        / (electron_mass_c2 * electron_mass_c2);
 }
 
 double BreitWheeler::centreOfMassStatic(double comEnergy,
     double dynamicEnergy, double theta) const
 {
-    return 2.0 * electron_mass_c2 * electron_mass_c2 * comEnergy
-        / (dynamicEnergy * (1.0 - std::cos(theta)));
+    return electron_mass_c2 * electron_mass_c2 * comEnergy
+        / (2.0 * dynamicEnergy * (1.0 - std::cos(theta)));
 }
 
 double BreitWheeler::centreOfMassDynamic(double comEnergy,
         double staticEnergy, double theta) const
 {
-    return 2.0 * electron_mass_c2 * electron_mass_c2 * comEnergy
-        / (staticEnergy * (1.0 - std::cos(theta)));
+    return electron_mass_c2 * electron_mass_c2 * comEnergy
+        / (2.0 * staticEnergy * (1.0 - std::cos(theta)));
 }
 
 double BreitWheeler::centreOfMassTheta(double comEnergy,
     double dynamicEnergy, double staticEnergy) const
 {
-    return std::acos(1.0 - 2.0 * electron_mass_c2 * electron_mass_c2
-        * comEnergy / (dynamicEnergy * staticEnergy));
+    return std::acos(1.0 - electron_mass_c2 * electron_mass_c2
+        * comEnergy / (2.0 * dynamicEnergy * staticEnergy));
 }

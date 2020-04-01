@@ -18,6 +18,6 @@ public:
     bool isIsotropic() const override {return false;}
 
     /* returns the dimensionality of the field. */
-    int fieldDimensions() const override {return 2;}
+    int fieldDimensions() const override {return 3;}
 };
 #endif

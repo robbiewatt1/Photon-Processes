@@ -64,8 +64,8 @@ G4VParticleChange* PhotonScatter::PostStepDoIt(const G4Track& aTrack,
     photonTheta = centreOfMassTheta(comEnergy, gammaEnergy, photonEnergy);
 
     /* Find particles properties in the COM frame*/
-    double pairEnergy = electron_mass_c2 * std::sqrt(comEnergy);
-    double pairPhi   = 2.0 * pi * G4UniformRand();
+    double pairEnergy = electron_mass_c2 * std::sqrt(comEnergy) / 2.0;
+    double pairPhi = 2.0 * pi * G4UniformRand();
     double pairTheta = samplePairAngle(comEnergy);
 
     G4LorentzVector gamma1Vector = G4LorentzVector(
@@ -131,32 +131,32 @@ double PhotonScatter::diffCrossSection(double comEnergy, double theta) const
         m_diffCrossSection, queryPoint);
 }
 
-double PhotonScatter::centreOfMassEnergy(double dynamicEnergy,
+double BreitWheeler::centreOfMassEnergy(double dynamicEnergy,
     double staticEnergy, double theta) const
 {
-    return dynamicEnergy * staticEnergy * (1.0 - std::cos(theta))
-        / (2.0 * electron_mass_c2 * electron_mass_c2);
+    return 2.0 * dynamicEnergy * staticEnergy * (1.0 - std::cos(theta))
+        / (electron_mass_c2 * electron_mass_c2);
 }
 
-double PhotonScatter::centreOfMassStatic(double comEnergy,
+double BreitWheeler::centreOfMassStatic(double comEnergy,
     double dynamicEnergy, double theta) const
 {
-    return 2.0 * electron_mass_c2 * electron_mass_c2 * comEnergy
-        / (dynamicEnergy * (1.0 - std::cos(theta)));
+    return electron_mass_c2 * electron_mass_c2 * comEnergy
+        / (2.0 * dynamicEnergy * (1.0 - std::cos(theta)));
 }
 
-double PhotonScatter::centreOfMassDynamic(double comEnergy,
+double BreitWheeler::centreOfMassDynamic(double comEnergy,
         double staticEnergy, double theta) const
 {
-    return 2.0 * electron_mass_c2 * electron_mass_c2 * comEnergy
-        / (staticEnergy * (1.0 - std::cos(theta)));
+    return electron_mass_c2 * electron_mass_c2 * comEnergy
+        / (2.0 * staticEnergy * (1.0 - std::cos(theta)));
 }
 
-double PhotonScatter::centreOfMassTheta(double comEnergy,
+double BreitWheeler::centreOfMassTheta(double comEnergy,
     double dynamicEnergy, double staticEnergy) const
 {
-    return std::acos(1.0 - 2.0 * electron_mass_c2 * electron_mass_c2
-        * comEnergy / (dynamicEnergy * staticEnergy));
+    return std::acos(1.0 - electron_mass_c2 * electron_mass_c2
+        * comEnergy / (2.0 * dynamicEnergy * staticEnergy));
 }
 
 void PhotonScatter::openDataFile(const std::string& fileName)

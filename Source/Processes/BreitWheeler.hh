@@ -6,14 +6,14 @@
 class BreitWheeler: public PhotonProcess
 {
 public:
-    explicit BreitWheeler(PhotonField* field, double comMin = 1.0);
+    explicit BreitWheeler(PhotonField* field, double comMin = 4.0);
 
 #ifdef USEGP
     explicit BreitWheeler(PhotonField* field, int trainSize, double errorMax,
-        double comMin = 1.0, std::string saveDir = "");
+        double comMin = 4.0, std::string saveDir = "");
 
     explicit BreitWheeler(PhotonField* field, const G4String& gpDir,
-        double errorMax, double comMin = 1.0, std::string saveDir = "");
+        double errorMax, double comMin = 4.0, std::string saveDir = "");
 #endif
 
     ~BreitWheeler();

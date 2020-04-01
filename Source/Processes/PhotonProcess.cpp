@@ -315,6 +315,7 @@ double PhotonProcess::samplePairAngle(double comEnergy)
     double randAngle;
     double randDensity;
     double angleDensity;
+
     do
     {
         randAngle    = std::acos(2.0 * G4UniformRand() - 1.0);
