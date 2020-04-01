@@ -25,6 +25,9 @@ file(GLOB source ${CMAKE_CURRENT_SOURCE_DIR}/Source/Tools/*.cpp
 file(GLOB header ${CMAKE_CURRENT_SOURCE_DIR}/Source/Tools/*.hh
            	 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Processes/*.hh
 		 ${CMAKE_CURRENT_SOURCE_DIR}/Source/Fields/*.hh)
+file(GLOB data  ${CMAKE_CURRENT_SOURCE_DIR}/DataTables/*.h5)
+file(GLOB bin  ${CMAKE_CURRENT_SOURCE_DIR}/Photon-Process.sh)
+
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Source/Tools
 		    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Processes
@@ -46,16 +49,18 @@ target_link_libraries(PhotonProcess PUBLIC Eigen3::Eigen
 					   ${libgp_LIBRARIES}
 					   ${HDF5_LIBRARIES}
 					   ${Geant4_LIBRARIES})
-install(TARGETS PhotonProcess EXPORT PhotonProcess-targets DESTINATION lib)
-install(EXPORT PhotonProcess-targets DESTINATION lib/cmake/PhotonProcess)
+install(TARGETS PhotonProcess EXPORT PhotonProcess-targets DESTINATION lib/PhotonProcess)
+install(EXPORT PhotonProcess-targets DESTINATION share/PhotonProcess/cmake)
 install(FILES ${header} ${header_gp}  DESTINATION include/PhotonProcess)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
 	"PhotonProcessConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/PhotonProcessConfig.cmake"
-	INSTALL_DESTINATION "lib/cmake/PhotonProcess"
+	INSTALL_DESTINATION "share/PhotonProcess/cmake"
 )
 if(BUILD_GP)
 	File(APPEND PhotonProcessConfig.cmake "add_definitions(-DUSEGP)")
 endif()
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PhotonProcessConfig.cmake" DESTINATION lib/cmake/PhotonProcess)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PhotonProcessConfig.cmake" DESTINATION share/PhotonProcess/cmake)
+install(FILES ${data} DESTINATION share/PhotonProcess/DataTables)
+install(FILES ${bin} DESTINATION bin)
