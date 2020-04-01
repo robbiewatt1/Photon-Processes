@@ -124,35 +124,28 @@ double PhotonScatter::crossSection(double comEnergy) const
         comEnergy);
 }
 
-double PhotonScatter::diffCrossSection(double comEnergy, double theta) const
-{
-    double queryPoint[2] = {comEnergy, theta};
-    return Numerics::interpolate2D(m_comEnergy, m_comTheta,
-        m_diffCrossSection, queryPoint);
-}
-
-double BreitWheeler::centreOfMassEnergy(double dynamicEnergy,
+double PhotonScatter::centreOfMassEnergy(double dynamicEnergy,
     double staticEnergy, double theta) const
 {
     return 2.0 * dynamicEnergy * staticEnergy * (1.0 - std::cos(theta))
         / (electron_mass_c2 * electron_mass_c2);
 }
 
-double BreitWheeler::centreOfMassStatic(double comEnergy,
+double PhotonScatter::centreOfMassStatic(double comEnergy,
     double dynamicEnergy, double theta) const
 {
     return electron_mass_c2 * electron_mass_c2 * comEnergy
         / (2.0 * dynamicEnergy * (1.0 - std::cos(theta)));
 }
 
-double BreitWheeler::centreOfMassDynamic(double comEnergy,
+double PhotonScatter::centreOfMassDynamic(double comEnergy,
         double staticEnergy, double theta) const
 {
     return electron_mass_c2 * electron_mass_c2 * comEnergy
         / (2.0 * staticEnergy * (1.0 - std::cos(theta)));
 }
 
-double BreitWheeler::centreOfMassTheta(double comEnergy,
+double PhotonScatter::centreOfMassTheta(double comEnergy,
     double dynamicEnergy, double staticEnergy) const
 {
     return std::acos(1.0 - electron_mass_c2 * electron_mass_c2
@@ -161,8 +154,30 @@ double BreitWheeler::centreOfMassTheta(double comEnergy,
 
 void PhotonScatter::openDataFile(const std::string& fileName)
 {
-    m_comEnergy.open(fileName, "/ComEnergy");
-    m_comTheta.open(fileName, "/Theta");
-    m_totalCrossSection.open(fileName, "/TotalCrossSection");
-    m_diffCrossSection.open(fileName, "/DiffCrossSection");
+    std::string fileName = theProcessName + "_total.h5";
+    // Check if new file exisits in current dir
+    struct stat buffer;
+    if (stat (fileName.c_str(), &buffer) == 0)
+    {
+        // Load file from run dir
+        m_comEnergy.open(fileName, "/s");
+        m_totalCrossSection.open(fileName, "/sigma");
+    } else
+    {
+        // Load file from Install
+        try
+        {
+            std::string installDir(getenv("Photon_Process_Data_Dir"));
+            std::string filePath = installDir + "/DataTables/" + fileName;
+            m_comEnergy.open(fileName, "/s");
+            m_totalCrossSection.open(fileName, "/sigma");
+        } catch (const std::exception& e)
+        {
+            std::cout << e.what() << std::endl;
+            std::cout << "You probably haven't run PhotonProcess.sh"
+                << std::endl;
+            std::abort();
+        }
+
+    }
 }

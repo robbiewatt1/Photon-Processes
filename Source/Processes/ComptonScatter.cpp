@@ -109,6 +109,7 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
         * std::sqrt(leptonEnergyIn * leptonEnergyIn - electron_mass_c2
             * electron_mass_c2) * photonEnergyIn * std::cos(photonThetaIn))
         / (leptonEnergyIn + photonEnergyIn);
+
     photonVector.boostZ(beta);
     leptonVector.boostZ(beta);
 
@@ -135,9 +136,6 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
     aParticleChange.ProposeMomentumDirection(leptonVector.v().unit());
     aParticleChange.ProposeEnergy(leptonVector[3]);
 
-    std::cout << photonVector << std::endl;
-    std::cout << leptonVector << std::endl;
-
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 }
 
@@ -145,13 +143,6 @@ double ComptonScatter::crossSection(double comEnergy) const
 {
     return Numerics::interpolate1D(m_comEnergy, m_totalCrossSection,
         comEnergy);
-}
-
-double ComptonScatter::diffCrossSection(double comEnergy, double theta) const
-{
-    double queryPoint[2] = {comEnergy, theta};
-    return Numerics::interpolate2D(m_comEnergy, m_comTheta,
-        m_diffCrossSection, queryPoint);
 }
 
 double ComptonScatter::centreOfMassEnergy(double dynamicEnergy,
@@ -186,10 +177,32 @@ double ComptonScatter::centreOfMassTheta(double comEnergy,
             / (dynamicEnergy * dynamicEnergy)));
 }
 
-void ComptonScatter::openDataFile(const std::string& fileName)
+void PhotonScatter::openDataFile(const std::string& fileName)
 {
-    m_comEnergy.open(fileName, "/ComEnergy");
-    m_comTheta.open(fileName, "/Theta");
-    m_totalCrossSection.open(fileName, "/TotalCrossSection");
-    m_diffCrossSection.open(fileName, "/DiffCrossSection");
+    std::string fileName = theProcessName + "_total.h5";
+    // Check if new file exisits in current dir
+    struct stat buffer;
+    if (stat (fileName.c_str(), &buffer) == 0)
+    {
+        // Load file from run dir
+        m_comEnergy.open(fileName, "/s");
+        m_totalCrossSection.open(fileName, "/sigma");
+    } else
+    {
+        // Load file from Install
+        try
+        {
+            std::string installDir(getenv("Photon_Process_Data_Dir"));
+            std::string filePath = installDir + "/DataTables/" + fileName;
+            m_comEnergy.open(fileName, "/s");
+            m_totalCrossSection.open(fileName, "/sigma");
+        } catch (const std::exception& e)
+        {
+            std::cout << e.what() << std::endl;
+            std::cout << "You probably haven't run PhotonProcess.sh"
+                << std::endl;
+            std::abort();
+        }
+
+    }
 }

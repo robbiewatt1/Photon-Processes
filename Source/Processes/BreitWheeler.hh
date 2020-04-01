@@ -27,9 +27,6 @@ protected:
     /* Returns the total cross-section for the process */
     double crossSection(double comEnergy) const override;
 
-    /* Returns the differential cross section of the process */
-    double diffCrossSection(double comEnergy, double theta) const override;
-
     /* Calculates the centre of mass energy. dynamicEnergy is the 
        interacting particle and static energy is a photon from the field */
     double centreOfMassEnergy(double dynamicEnergy,

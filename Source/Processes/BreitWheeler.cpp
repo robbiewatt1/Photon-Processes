@@ -129,17 +129,6 @@ double BreitWheeler::crossSection(double comEnergy) const
     }
 }
 
-double BreitWheeler::diffCrossSection(double comEnergy, double theta) const
-{
-    double beta = std::sqrt(1.0 - 4.0 / comEnergy);
-    double sinT = std::sin(theta);
-    double cosT = std::cos(theta);
-    return (beta / comEnergy) * (1.0 + 2.0 * beta * beta * sinT * sinT
-            - beta * beta * beta * beta - beta * beta * beta * beta
-            * sinT * sinT * sinT * sinT) / ((1.0 - beta * beta * cosT * cosT)
-            * (1.0 - beta * beta * cosT * cosT));
-}
-
 double BreitWheeler::centreOfMassEnergy(double dynamicEnergy,
     double staticEnergy, double theta) const
 {

@@ -8,6 +8,12 @@
     #include "GaussianProcess.hh"
 #endif
 
+struct dataTable
+{
+    Vector<double> xAxis;
+    Vector<double> yAxis;
+    Matrix<double> data;
+};
 
 class PhotonProcess: public G4VDiscreteProcess
 {
@@ -54,12 +60,9 @@ public:
 
 /* The following methods must be overriden for a new process */
 protected:
-
+    
     /* Returns the total cross-section for the process */
     virtual double crossSection(double comEnergy) const = 0;
-
-    /* Returns the differential cross section of the process */
-    virtual double diffCrossSection(double comEnergy, double theta) const = 0;
 
     /* Calculates the centre of mass energy. dynamicEnergy is the 
        interacting particle and static energy is a photon from the field */
@@ -81,7 +84,6 @@ protected:
     virtual double centreOfMassTheta(double comEnergy, double dynamicEnergy,
         double staticEnergy) const = 0;
 
-public:
     /* Samples the energy, angle from the photon field */
     void samplePhotonField(int blockID, double gammaEnergy,
         double& photonEnergy, double& comEnergy, double& photonPhi) const;
@@ -95,12 +97,19 @@ public:
     void rotateThetaPhi(double angleIn[2], double angleOut[2],
         const G4RotationMatrix& rotaion) const;
 
-    PhotonField* m_field;      // static X ray field
-    double m_comMin;           // Min COM energy of interest
-    double m_minDensity;       // Min angula density of interest
+    /* Loads the inverse CDF table which is used for sampling from the
+       differential cross-section. This will load the included file in the
+       installation unless there is a file in the run-path with the correct
+       name*/
+    void loadDiffCrossSection();
+
+    PhotonField* m_field;       // static X ray field
+    double m_comMin;            // Min COM energy of interest
+    double m_minDensity;        // Min angula density of interest
     G4RotationMatrix m_rotaion; // Rotation matrix to gamma frame
-    bool m_useGP;            // Bool turing GP on and off
-    double m_multiplier;    // Increase / decrese cross-section
+    bool m_useGP;               // Bool turing GP on and off
+    double m_multiplier;        // Increase / decrese cross-section
+    dataTable m_invCdfTable;    // Table for sampling from cross-ection
 
 #ifdef USEGP
     double m_errorMax;       // Max eroor before using GP

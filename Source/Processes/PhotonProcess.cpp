@@ -2,12 +2,14 @@
 #include "Numerics.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
+#include <sys/stat.h>
 
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin,
     const G4String& name, G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field), m_comMin(comMin),
 m_useGP(false), m_multiplier(1)
 {
+    loadDiffCrossSection();
 }
 
 #ifdef USEGP
@@ -21,6 +23,7 @@ m_saveDir(saveDir)
     int numBlocks = m_field->getNumBlocks();
     int dims = m_field->fieldDimensions();
     m_gp = new GaussianProcess(numBlocks, dims, trainSize);
+    loadDiffCrossSection();
 }
 
 PhotonProcess::PhotonProcess(PhotonField* field,  double comMin,
@@ -31,6 +34,7 @@ m_comMin(comMin), m_useGP(true), m_multiplier(1), m_errorMax(errorMax),
 m_saveDir(saveDir)
 {
     m_gp = new GaussianProcess(gpDir);
+    loadDiffCrossSection();
 }
 #endif
 
@@ -311,18 +315,9 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
 
 double PhotonProcess::samplePairAngle(double comEnergy)
 {
-    double maxDensity = diffCrossSection(comEnergy, 0);
-    double randAngle;
-    double randDensity;
-    double angleDensity;
-
-    do
-    {
-        randAngle    = std::acos(2.0 * G4UniformRand() - 1.0);
-        randDensity  = G4UniformRand() * maxDensity;
-        angleDensity = diffCrossSection(comEnergy, randAngle);
-    } while (randDensity > angleDensity);
-    return randAngle;
+    double rand = G4UniformRand();
+    return Numerics::interpolate2D(m_invCdfTable.xAxis, m_invCdfTable.yAxis,
+        m_invCdfTable.data, queryPoint);
 }
 
 void PhotonProcess::rotateThetaPhi(double angleIn[2], double angleOut[2],
@@ -334,4 +329,36 @@ void PhotonProcess::rotateThetaPhi(double angleIn[2], double angleOut[2],
     G4ThreeVector vectorPrime = rotaion(vector);
     angleOut[0] = std::acos(vectorPrime[2]);
     angleOut[1] = std::atan2(vectorPrime[1], (vectorPrime[0] + 1e-99));
+}
+
+void PhotonProcess::loadDiffCrossSection()
+{
+    std::string fileName = theProcessName + "_diff.h5";
+    // Check if new file exisits in current dir
+    struct stat buffer;
+    if (stat (fileName.c_str(), &buffer) == 0)
+    {
+        // Load file from run dir
+        m_invCdfTable.xAxis.open(fileName, "/s");
+        m_invCdfTable.yAxis.open(fileName, "/p");
+        m_invCdfTable.data.open(fileName, "/angle");
+    } else
+    {
+        // Load file from Install
+        try
+        {
+            std::string installDir(getenv("Photon_Process_Data_Dir"));
+            std::string filePath = installDir + "/DataTables/" + fileName;
+            m_invCdfTable.xAxis.open(fileName, "/s");
+            m_invCdfTable.yAxis.open(fileName, "/p");
+            m_invCdfTable.data.open(fileName, "/angle");
+        } catch (const std::exception& e)
+        {
+            std::cout << e.what() << std::endl;
+            std::cout << "You probably havent run PhotonProcess.sh"
+                << std::endl;
+            std::abort();
+        }
+
+    }
 }
