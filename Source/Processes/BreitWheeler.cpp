@@ -123,9 +123,9 @@ double BreitWheeler::crossSection(double comEnergy) const
     } else
     {
         double beta = std::sqrt(1.0 - 4.0 / comEnergy);
-        return (1.0 - beta * beta) * ((3.0 - beta * beta * beta * beta)
-                * std::log((1.0 + beta) / (1.0 - beta)) - 2.0 * beta 
-                * (2.0 - beta * beta));
+        return 0.5 * pi * (1.0 - beta * beta)
+            * ((3.0 - beta * beta * beta * beta) * std::log((1.0 + beta)
+                / (1.0 - beta)) - 2.0 * beta * (2.0 - beta * beta));
     }
 }
 

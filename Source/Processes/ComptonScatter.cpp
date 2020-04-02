@@ -6,30 +6,28 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4LorentzVector.hh"
-
 #include <fstream>
+#include <sys/stat.h>
 
-ComptonScatter::ComptonScatter(PhotonField* field,
-    const std::string& dataFile, double comMin):
+ComptonScatter::ComptonScatter(PhotonField* field, double comMin):
 PhotonProcess(field, comMin, "ComptonScatter")
 {
-    openDataFile(dataFile);
+    loadCrossSection();
 }
 
 #ifdef USEGP
-ComptonScatter::ComptonScatter(PhotonField* field,
-    const std::string& dataFile, int trainSize, double errorMax, double comMin,
-    std::string saveDir):
+ComptonScatter::ComptonScatter(PhotonField* field, int trainSize,
+    double errorMax, double comMin, std::string saveDir):
 PhotonProcess(field, comMin, trainSize, errorMax, saveDir, "ComptonScatter")
 {
-    openDataFile(dataFile);
+    loadCrossSection();
 }
 
-ComptonScatter::ComptonScatter(PhotonField* field, const std::string& dataFile,
-    const G4String& gpDir, double errorMax, double comMin, std::string saveDir):
+ComptonScatter::ComptonScatter(PhotonField* field, const G4String& gpDir,
+    double errorMax, double comMin, std::string saveDir):
 PhotonProcess(field, comMin, gpDir, errorMax, saveDir, "ComptonScatter")
 {
-    openDataFile(dataFile);
+    loadCrossSection();
 }
 #endif
 
@@ -177,7 +175,7 @@ double ComptonScatter::centreOfMassTheta(double comEnergy,
             / (dynamicEnergy * dynamicEnergy)));
 }
 
-void PhotonScatter::openDataFile(const std::string& fileName)
+void ComptonScatter::loadCrossSection()
 {
     std::string fileName = theProcessName + "_total.h5";
     // Check if new file exisits in current dir
@@ -192,9 +190,9 @@ void PhotonScatter::openDataFile(const std::string& fileName)
         // Load file from Install
         try
         {
-            std::string installDir(getenv("Photon_Process_Data_Dir"));
-            std::string filePath = installDir + "/DataTables/" + fileName;
-            m_comEnergy.open(fileName, "/s");
+            std::string dataDir(getenv("Photon_Process_Data_Dir"));
+            std::string filePath = dataDir + "/" + fileName;
+            m_comEnergy.open(filePath, "/s");
             m_totalCrossSection.open(fileName, "/sigma");
         } catch (const std::exception& e)
         {

@@ -7,19 +7,16 @@ class ComptonScatter: public PhotonProcess
 {
 public:
     /* Defult no GP constructor */
-    explicit ComptonScatter(PhotonField* field, const std::string& dataFile,
-        double comMin = 1.0);
+    explicit ComptonScatter(PhotonField* field, double comMin = 1.0);
 
 #ifdef USEGP
     /* GP constructor new */
-    explicit ComptonScatter(PhotonField* field, const std::string& dataFile,
-        int trainSize, double errorMax, double comMin = 1.0,
-        std::string saveDir = "");
+    explicit ComptonScatter(PhotonField* field, int trainSize, double errorMax,
+        double comMin = 1.0, std::string saveDir = "");
 
     /* GP constructor using previously trained GP */
-    explicit ComptonScatter(PhotonField* field, const std::string& dataFile,
-        const G4String& gpDir, double errorMax, double comMin = 1.0,
-        std::string saveDir = "");
+    explicit ComptonScatter(PhotonField* field, const G4String& gpDir,
+        double errorMax, double comMin = 1.0, std::string saveDir = "");
 #endif
 
     ~ComptonScatter();
@@ -54,9 +51,9 @@ protected:
     double centreOfMassTheta(double comEnergy, double dynamicEnergy,
         double staticEnergy) const override;
 private:
-    /* Opens the file containing the differential
+    /* Opens the file containing the total
        cross-section data */
-    void openDataFile(const std::string& fileName);
+    void loadCrossSection();
 
     /* Vectors conraining the tabulated cross-section data */
     Vector<double> m_comEnergy;

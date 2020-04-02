@@ -63,12 +63,17 @@ void PhotonProcess::setParamsGP(const Vector<double>& inputNorm,
 G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
          G4ForceCondition*)
 {
+    std::cout << "here" << std::endl;
     /* check if inside a radiation block */
     G4Material* aMaterial = track.GetMaterial();
     if(aMaterial->GetMaterialPropertiesTable()->GetConstProperty("Radiation")
             < 0.0) return 1e99;
+    std::cout << "here2" << std::endl;
     int blockID = aMaterial->GetMaterialPropertiesTable()
         ->GetConstProperty("BlockID");
+    std::cout << "here3" << std::endl;
+
+
     
     /* Get the interacting particle properties */
     const G4DynamicParticle *dynamicParticle = track.GetDynamicParticle();
@@ -90,6 +95,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
     /* Check if max (head on) COM is too low */
     double comMax = centreOfMassEnergy(dynamicEnergy,
         *m_field->getEnergy().end(), *m_field->getTheta().end());
+    std::cout << comMax << std::endl;
     if(comMax < m_comMin) return 1e99;
 
 #ifdef USEGP
@@ -139,8 +145,8 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             energyInt[i] = m_field->getEnergyDensity()[i]
                 * Numerics::simpsons(m_field->getTheta(), thetaInt);
         }
-        meanPath = 2.0 / (classic_electr_radius * classic_electr_radius
-            * pi * Numerics::simpsons(m_field->getEnergy(), energyInt));
+        meanPath = 1.0 / (classic_electr_radius * classic_electr_radius
+            * Numerics::simpsons(m_field->getEnergy(), energyInt));
     } else // Is anisotropic
     {
         Vector<double> phiInt(m_field->getAngleRes());
@@ -177,8 +183,8 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             energyInt[i] = m_field->getEnergyDensity()[i]
                 * Numerics::simpsons(m_field->getTheta(), thetaInt);
         }
-        meanPath = 2.0 / (classic_electr_radius * classic_electr_radius
-            * pi * Numerics::simpsons(m_field->getEnergy(), energyInt));
+        meanPath = 1.0 / (classic_electr_radius * classic_electr_radius
+            * Numerics::simpsons(m_field->getEnergy(), energyInt));
     }
 #ifdef USEGP
     if (m_useGP)
@@ -193,6 +199,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         }
     }
 #endif
+    std::cout << meanPath << std::endl;
     return meanPath / m_multiplier;
 }
 
@@ -315,7 +322,13 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
 
 double PhotonProcess::samplePairAngle(double comEnergy)
 {
-    double rand = G4UniformRand();
+    if (comEnergy > *m_invCdfTable.xAxis.end())
+    {
+        std::cerr << "Warning: s is outside of differential cross-section"
+                      "table limits for " << theProcessName
+                  << ". This may cause a crash!" << std::endl;
+    }
+    double queryPoint[] = {comEnergy, G4UniformRand()};
     return Numerics::interpolate2D(m_invCdfTable.xAxis, m_invCdfTable.yAxis,
         m_invCdfTable.data, queryPoint);
 }
@@ -347,11 +360,11 @@ void PhotonProcess::loadDiffCrossSection()
         // Load file from Install
         try
         {
-            std::string installDir(getenv("Photon_Process_Data_Dir"));
-            std::string filePath = installDir + "/DataTables/" + fileName;
-            m_invCdfTable.xAxis.open(fileName, "/s");
-            m_invCdfTable.yAxis.open(fileName, "/p");
-            m_invCdfTable.data.open(fileName, "/angle");
+            std::string dataDir(getenv("Photon_Process_Data_Dir"));
+            std::string filePath = dataDir + "/" + fileName;
+            m_invCdfTable.xAxis.open(filePath, "/s");
+            m_invCdfTable.yAxis.open(filePath, "/p");
+            m_invCdfTable.data.open(filePath, "/angle");
         } catch (const std::exception& e)
         {
             std::cout << e.what() << std::endl;

@@ -1,16 +1,18 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 project(PhotonProcess)
 
+if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
+    message(FATAL_ERROR "Source and build directories cannot be the same. "
+	    		"Remove CMakeCache.txt and CMakeFiles and try again.")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
-
-
 find_package(Geant4 REQUIRED)
 find_package(Eigen3 3.0.1 REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
-
 
 option(BUILD_GP "Use GP" OFF)
 if(BUILD_GP)

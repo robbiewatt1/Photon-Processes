@@ -7,18 +7,16 @@ class PhotonScatter: public PhotonProcess
 {
 public:
     /* Defult no GP constructor */
-    explicit PhotonScatter(PhotonField* field, const std::string& dataFile,
-        double comMin);
+    explicit PhotonScatter(PhotonField* field, double comMin);
 
 #ifdef USEGP
     /* GP constructor new */
-    explicit PhotonScatter(PhotonField* field, const std::string& dataFile,
-        int trainSize, double errorMax, double comMin,
-        std::string saveDir = "");
+    explicit PhotonScatter(PhotonField* field, int trainSize, double errorMax,
+        double comMin, std::string saveDir = "");
 
     /* GP constructor using previously trained GP */
-    explicit PhotonScatter(PhotonField* field, const std::string& dataFile,
-        const G4String& gpDir, double errorMax, double comMin,
+    explicit PhotonScatter(PhotonField* field, const G4String& gpDir,
+        double errorMax, double comMin,
         std::string saveDir = "");
 #endif
 
@@ -55,9 +53,9 @@ public:
         double staticEnergy) const override;
 
 private:
-    /* Opens the file containing the differential
+    /* Opens the file containing the total
        cross-section data */
-    void openDataFile(const std::string& fileName);
+    void loadCrossSection();
 
     Vector<double> m_comEnergy;
     Vector<double> m_comTheta;
