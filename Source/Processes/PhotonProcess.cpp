@@ -63,18 +63,13 @@ void PhotonProcess::setParamsGP(const Vector<double>& inputNorm,
 G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
          G4ForceCondition*)
 {
-    std::cout << "here" << std::endl;
     /* check if inside a radiation block */
     G4Material* aMaterial = track.GetMaterial();
     if(aMaterial->GetMaterialPropertiesTable()->GetConstProperty("Radiation")
             < 0.0) return 1e99;
-    std::cout << "here2" << std::endl;
     int blockID = aMaterial->GetMaterialPropertiesTable()
         ->GetConstProperty("BlockID");
-    std::cout << "here3" << std::endl;
 
-
-    
     /* Get the interacting particle properties */
     const G4DynamicParticle *dynamicParticle = track.GetDynamicParticle();
     double dynamicEnergy = dynamicParticle->GetKineticEnergy();
@@ -95,7 +90,6 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
     /* Check if max (head on) COM is too low */
     double comMax = centreOfMassEnergy(dynamicEnergy,
         *m_field->getEnergy().end(), *m_field->getTheta().end());
-    std::cout << comMax << std::endl;
     if(comMax < m_comMin) return 1e99;
 
 #ifdef USEGP
@@ -136,7 +130,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                 {
                     thetaInt[j] = crossSection(comEnergy)
                         * (1.0 - std::cos(m_field->getTheta()[j]))
-                        * std::sin(m_field->getTheta()[j]);
+                        * std::sin(m_field->getTheta()[j]) / (4.0 * pi);
                 } else 
                 {
                     thetaInt[j] = 0;
@@ -178,7 +172,6 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                     }
                 }
                 thetaInt[j] = Numerics::simpsons(m_field->getPhi(), phiInt);
-
             }
             energyInt[i] = m_field->getEnergyDensity()[i]
                 * Numerics::simpsons(m_field->getTheta(), thetaInt);
@@ -199,7 +192,6 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         }
     }
 #endif
-    std::cout << meanPath << std::endl;
     return meanPath / m_multiplier;
 }
 
@@ -324,9 +316,9 @@ double PhotonProcess::samplePairAngle(double comEnergy)
 {
     if (comEnergy > *m_invCdfTable.xAxis.end())
     {
-        std::cerr << "Warning: s is outside of differential cross-section"
+        std::cerr << "Warning: s is outside of differential cross-section "
                       "table limits for " << theProcessName
-                  << ". This may cause a crash!" << std::endl;
+                  << ". \nThis may cause a crash!" << std::endl;
     }
     double queryPoint[] = {comEnergy, G4UniformRand()};
     return Numerics::interpolate2D(m_invCdfTable.xAxis, m_invCdfTable.yAxis,
@@ -368,10 +360,9 @@ void PhotonProcess::loadDiffCrossSection()
         } catch (const std::exception& e)
         {
             std::cout << e.what() << std::endl;
-            std::cout << "You probably havent run PhotonProcess.sh"
+            std::cout << "You probably haven't run PhotonProcess.sh"
                 << std::endl;
             std::abort();
         }
-
     }
 }

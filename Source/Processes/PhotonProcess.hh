@@ -1,6 +1,7 @@
 #ifndef PhotonProcess_hh
 #define PhotonProcess_hh
 
+#include <string>
 #include "G4VDiscreteProcess.hh"
 #include "PhotonField.hh"
 
@@ -8,12 +9,14 @@
     #include "GaussianProcess.hh"
 #endif
 
+
 struct dataTable
 {
     Vector<double> xAxis;
     Vector<double> yAxis;
     Matrix<double> data;
 };
+
 
 class PhotonProcess: public G4VDiscreteProcess
 {

@@ -16,7 +16,7 @@ public:
         double errorMax, double comMin = 4.0, std::string saveDir = "");
 #endif
 
-    ~BreitWheeler();
+    virtual ~BreitWheeler();
 
     G4bool IsApplicable(const G4ParticleDefinition& particle) const override;
     

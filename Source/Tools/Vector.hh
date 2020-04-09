@@ -15,10 +15,9 @@ class Vector
         T *m_data;
     
     public:
-        Vector()
+        Vector():
+        m_size(0), m_data(nullptr)
         {
-            m_size = 0;
-            m_data = nullptr;
         }
 
         Vector(int size):

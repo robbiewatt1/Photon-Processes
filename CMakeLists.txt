@@ -61,7 +61,7 @@ configure_package_config_file(
 	INSTALL_DESTINATION "share/PhotonProcess/cmake"
 )
 if(BUILD_GP)
-	File(APPEND PhotonProcessConfig.cmake "add_definitions(-DUSEGP)")
+	File(APPEND ${CMAKE_CURRENT_BINARY_DIR}/PhotonProcessConfig.cmake "add_definitions(-DUSEGP)")
 endif()
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PhotonProcessConfig.cmake" DESTINATION share/PhotonProcess/cmake)
 install(FILES ${data} DESTINATION share/PhotonProcess/DataTables)

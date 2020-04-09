@@ -168,7 +168,7 @@ void PhotonScatter::loadCrossSection()
             std::string dataDir(getenv("Photon_Process_Data_Dir"));
             std::string filePath = dataDir + "/" + fileName;
             m_comEnergy.open(filePath, "/s");
-            m_totalCrossSection.open(fileName, "/sigma");
+            m_totalCrossSection.open(filePath, "/sigma");
         } catch (const std::exception& e)
         {
             std::cout << e.what() << std::endl;

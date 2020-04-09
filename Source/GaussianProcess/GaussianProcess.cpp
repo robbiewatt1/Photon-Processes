@@ -20,7 +20,7 @@ m_logResgress(logResgress)
         libgp::GaussianProcess* process
             = new libgp::GaussianProcess(inputSize, "CovSEiso");
         Eigen::VectorXd params(process->covf().get_param_dim());
-        for(int j = 0; j < process->covf().get_param_dim(); j++) params[j] = -1;
+        for(size_t j = 0; j < process->covf().get_param_dim(); j++) params[j] = -1;
         process->covf().set_loghyper(params);
         m_gausProc[i] = process;
     }
