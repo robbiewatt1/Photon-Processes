@@ -47,7 +47,6 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
 {
    /* Get the properties of both the interacting lepton and a sampled 
        photon from the photon field */
-
     aParticleChange.Initialize(aTrack);
    const G4DynamicParticle *aDynamicLepton = aTrack.GetDynamicParticle(); 
     G4Material* aMaterial = aTrack.GetMaterial();
@@ -80,10 +79,7 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
     double leptonMomentumOut = std::sqrt(lepronEnergyOut * lepronEnergyOut
         - electron_mass_c2 * electron_mass_c2);
     double photonPhiOut   = 2.0 * pi * G4UniformRand();
-    double photonThetaOut = samplePairAngle(10);
-
-    std::ofstream file("./test.dat", std::fstream::app);
-    file << photonThetaOut << "\n";
+    double photonThetaOut = samplePairAngle(comEnergy);
 
     G4LorentzVector photonVector = G4LorentzVector(
         std::sin(photonThetaOut) * std::cos(photonPhiOut) * photonEnergyOut,
@@ -93,15 +89,7 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
         -std::sin(photonThetaOut) * std::cos(photonPhiOut) * leptonMomentumOut,
         -std::sin(photonThetaOut) * std::sin(photonPhiOut) * leptonMomentumOut,
         -std::cos(photonThetaOut) * leptonMomentumOut, lepronEnergyOut);
-/*
-    double beta = std::sqrt((photonEnergyIn * photonEnergyIn
-        + leptonEnergyIn * leptonEnergyIn) / (electron_mass_c2
-        * electron_mass_c2) - 1.0 - 2.0 * leptonEnergyIn * photonEnergyIn
-        * std::sqrt(1.0 - electron_mass_c2 * electron_mass_c2
-            / (leptonEnergyIn * leptonEnergyIn))
-        * std::cos(photonThetaIn)) * electron_mass_c2
-        / (photonEnergyIn + leptonEnergyIn);
-*/
+
     double beta = std::sqrt(leptonEnergyIn * leptonEnergyIn -  electron_mass_c2
         * electron_mass_c2 + photonEnergyIn * photonEnergyIn + 2.0
         * std::sqrt(leptonEnergyIn * leptonEnergyIn - electron_mass_c2
@@ -128,7 +116,7 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
 
     /* Add new photon and update lepton momentum */
     G4DynamicParticle* photon = new G4DynamicParticle(
-            G4Gamma::Gamma(), photonVector);            
+            G4Gamma::Gamma(), photonVector);
     aParticleChange.SetNumberOfSecondaries(1);
     aParticleChange.AddSecondary(photon);
     aParticleChange.ProposeMomentumDirection(leptonVector.v().unit());
@@ -193,7 +181,7 @@ void ComptonScatter::loadCrossSection()
             std::string dataDir(getenv("Photon_Process_Data_Dir"));
             std::string filePath = dataDir + "/" + fileName;
             m_comEnergy.open(filePath, "/s");
-            m_totalCrossSection.open(fileName, "/sigma");
+            m_totalCrossSection.open(filePath, "/sigma");
         } catch (const std::exception& e)
         {
             std::cout << e.what() << std::endl;

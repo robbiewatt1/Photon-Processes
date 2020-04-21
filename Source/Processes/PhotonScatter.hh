@@ -58,7 +58,6 @@ private:
     void loadCrossSection();
 
     Vector<double> m_comEnergy;
-    Vector<double> m_comTheta;
     Vector<double> m_totalCrossSection;
 };
 #endif

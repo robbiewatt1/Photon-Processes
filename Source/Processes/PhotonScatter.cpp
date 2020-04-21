@@ -40,7 +40,6 @@ G4VParticleChange* PhotonScatter::PostStepDoIt(const G4Track& aTrack,
        photon from the photon field */
     aParticleChange.Initialize(aTrack);
     const G4DynamicParticle *aDynamicGamma = aTrack.GetDynamicParticle();
- 
     G4Material* aMaterial = aTrack.GetMaterial();
     int blockID = aMaterial->GetMaterialPropertiesTable()
         ->GetConstProperty("BlockID");
