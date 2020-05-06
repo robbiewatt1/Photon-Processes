@@ -4,6 +4,8 @@
 #include "G4PhysicalConstants.hh"
 #include <sys/stat.h>
 
+#include<fstream>
+
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin,
     const G4String& name, G4ProcessType type):
 G4VDiscreteProcess(name, type), m_field(field), m_comMin(comMin),
@@ -105,7 +107,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             m_gp->run(blockID, {dynamicEnergy, dynamicTheta, dynamicPhi},
                 gpOut);
         }
-        if (gpOut[1] < m_errorMax)
+        if (std::sqrt(gpOut[1]) / gpOut[0] < m_errorMax)
         {
             return gpOut[0] / m_multiplier;
         }
@@ -130,8 +132,8 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                 {
                     thetaInt[j] = crossSection(comEnergy)
                         * (1.0 - std::cos(m_field->getTheta()[j]))
-                        * std::sin(m_field->getTheta()[j]) / (4.0 * pi);
-                } else 
+                        * std::sin(m_field->getTheta()[j]) / 2.0;
+                } else
                 {
                     thetaInt[j] = 0;
                 }
@@ -279,11 +281,10 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
         double comEnergyMin = centreOfMassEnergy(dynamicEnergy,
             m_field->getEnergy()[0], minTheta);
         comEnergyMin = m_comMin > comEnergyMin
-            ? comEnergyMin : comEnergyMin;
+            ? m_comMin : comEnergyMin;
         double comEnergyMax = centreOfMassEnergy(dynamicEnergy,
             *m_field->getEnergy().end(), maxTheta);
         double density, randDensity;
-
         do
         {   // While random density is too large
             do

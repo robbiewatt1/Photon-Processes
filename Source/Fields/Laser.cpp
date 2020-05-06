@@ -16,6 +16,7 @@ Laser::Laser(double energy, double energyDensity, Vector<double> direction)
         * direction[2]));
     double phi = std::atan2(direction[1], (direction[1] +1e-99));
 
+    m_nBlocks = 1;
     m_energyRes = 1;
     m_angleRes = 1;
     m_energy = {energy};

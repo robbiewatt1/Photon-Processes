@@ -15,7 +15,6 @@ public:
     */
     explicit BlackBody(double temp, double energyMin, double energyMax,
             int energyRes, int angularRes);
-
     
     ~BlackBody();
 
@@ -33,5 +32,4 @@ public:
        an angular density */
     const Matrix<double>& getAngleDensity(int blockID) const override;
 };
-
 #endif

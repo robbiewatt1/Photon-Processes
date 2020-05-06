@@ -7,7 +7,6 @@
 class PhotonField
 {
 public:
-
     /* Override by returning true for isotropic or false 
        for nonisotroipic */
     virtual bool isIsotropic() const = 0;
@@ -34,12 +33,11 @@ public:
     virtual const Matrix<double>& getAngleDensity(int blockID) const
         {return m_angleDensity[blockID];}
 
-    virtual int getBlockID(int pos[3]) const {return 0;}
-
-    virtual int getNumBlocks() const {return 1.0;} 
+    virtual int getNumBlocks() const {return m_nBlocks;} 
 
 protected:
 
+    int m_nBlocks;
     int m_energyRes;
     int m_angleRes;
     Vector<double> m_energy;

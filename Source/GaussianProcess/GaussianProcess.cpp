@@ -18,7 +18,7 @@ m_logResgress(logResgress)
     for (int i = 0; i < gpSize; ++i)
     {
         libgp::GaussianProcess* process
-            = new libgp::GaussianProcess(inputSize, "CovSEiso");
+            = new libgp::GaussianProcess(inputSize, "CovSum (CovSEard, CovNoise)");
         Eigen::VectorXd params(process->covf().get_param_dim());
         for(size_t j = 0; j < process->covf().get_param_dim(); j++) params[j] = -1;
         process->covf().set_loghyper(params);
@@ -111,7 +111,7 @@ void GaussianProcess::setNormParams(const Vector<double>& inputNorm,
     m_inputNorm = inputNorm;
     if (m_logResgress)
     {
-        m_outputNorm = std::log10(outputNorm);
+        m_outputNorm = std::log(outputNorm);
     } else
     {
         m_outputNorm = outputNorm;
@@ -133,8 +133,12 @@ void GaussianProcess::run(int gpID, const Vector<double>& input,
         }
         if (m_logResgress)
         {
-            output[0] = std::pow(10, m_gausProc[gpID]->f(input.begin()) * m_outputNorm);
-            output[1] = m_gausProc[gpID]->var(input.begin());
+            double log_mean = m_gausProc[gpID]->f(input.begin());
+            double log_var = m_gausProc[gpID]->var(input.begin());
+            output[0]= std::exp(log_mean * m_outputNorm + 0.5 * log_var
+                * m_outputNorm * m_outputNorm);
+            output[1] = log_var * output[0] * output[0] * m_outputNorm
+                * m_outputNorm; 
         } else
         {
             output[0] = m_gausProc[gpID]->f(input.begin())
@@ -155,7 +159,7 @@ void GaussianProcess::addData(int gpID, const Vector<double>& input,
     }
     if (m_logResgress)
     {
-        m_gausProc[gpID]->add_pattern(inputNormed.begin(), std::log10(output)
+        m_gausProc[gpID]->add_pattern(inputNormed.begin(), std::log(output)
             / m_outputNorm);
     } else
     {

@@ -7,6 +7,7 @@
 BlackBody::BlackBody(double temp, double energyMin, double energyMax,
     int energyRes, int angularRes)
 {
+    m_nBlocks = 1;
     m_energyRes = energyRes;
     m_angleRes = angularRes;
     m_energy  = Vector<double>(m_energyRes);
@@ -23,7 +24,7 @@ BlackBody::BlackBody(double temp, double energyMin, double energyMax,
     {
         m_energyDensity[i] = 1.0 / (hbar_Planck * hbar_Planck * hbar_Planck
             * c_light * c_light * c_light * pi * pi) * m_energy[i]
-            * m_energy[i] / std::exp(m_energy[i] / temp - 1.0);
+            * m_energy[i] / (std::exp(m_energy[i] / temp) - 1.0);
     }
 }
 
