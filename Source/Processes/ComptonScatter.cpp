@@ -119,20 +119,10 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
             G4Gamma::Gamma(), photonVector);
 
     // Changes
-    aParticleChange.SetNumberOfSecondaries(2);
-    G4DynamicParticle* positron = new G4DynamicParticle(
-            G4Positron::Positron(), leptonVector);
-    aParticleChange.AddSecondary(photon);
-    aParticleChange.AddSecondary(positron);
-    aParticleChange.ProposeMomentumDirection(G4ThreeVector(0,0,0));
-    aParticleChange.ProposeEnergy(0.);
-    aParticleChange.ProposeTrackStatus(fStopAndKill);
-    /*
     aParticleChange.SetNumberOfSecondaries(1);
     aParticleChange.AddSecondary(photon);
     aParticleChange.ProposeMomentumDirection(leptonVector.v().unit());
     aParticleChange.ProposeEnergy(leptonVector[3]);
-    */
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 }
 
