@@ -95,7 +95,6 @@ G4VParticleChange* ComptonScatter::PostStepDoIt(const G4Track& aTrack,
         * std::sqrt(leptonEnergyIn * leptonEnergyIn - electron_mass_c2
             * electron_mass_c2) * photonEnergyIn * std::cos(photonThetaIn))
         / (leptonEnergyIn + photonEnergyIn);
-
     photonVector.boostZ(beta);
     leptonVector.boostZ(beta);
 
@@ -144,23 +143,23 @@ double ComptonScatter::centreOfMassEnergy(double dynamicEnergy,
 double ComptonScatter::centreOfMassStatic(double comEnergy,
     double dynamicEnergy, double theta) const
 { 
-    return (comEnergy - 1) * electron_mass_c2 * electron_mass_c2
-        / (2.0 * dynamicEnergy) / (1.0 - std::sqrt(1.0 -  electron_mass_c2
+    return (comEnergy - 1.0) * electron_mass_c2 * electron_mass_c2
+        / (2.0 * dynamicEnergy) / (1.0 - std::sqrt(1.0 - electron_mass_c2
             * electron_mass_c2 / (dynamicEnergy * dynamicEnergy)));
 }
 
 double ComptonScatter::centreOfMassDynamic(double comEnergy,
     double staticEnergy, double theta) const
-{
+{  
     return 0;
 }
 
 double ComptonScatter::centreOfMassTheta(double comEnergy,
     double dynamicEnergy, double staticEnergy) const
 {
-    return std::acos((1.0 - (comEnergy - 1) * electron_mass_c2
+    return std::acos((1.0 - (comEnergy - 1.0) * electron_mass_c2
         * electron_mass_c2 / (2.0 * dynamicEnergy * staticEnergy))
-        / std::sqrt(1 - electron_mass_c2 * electron_mass_c2
+        / std::sqrt(1.0 - electron_mass_c2 * electron_mass_c2
             / (dynamicEnergy * dynamicEnergy)));
 }
 

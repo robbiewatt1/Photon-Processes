@@ -232,7 +232,8 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
                 comEnergy = m_comMin + G4UniformRand()
                     * (comEnergyMax - m_comMin);
             } while (comEnergy > centreOfMassEnergy(dynamicEnergy,
-                photonEnergy, pi));
+                photonEnergy, pi) || comEnergy <
+                centreOfMassEnergy(dynamicEnergy, photonEnergy, 0));
             photonPhi = G4UniformRand() * 2.0 * pi;
             density = crossSection(comEnergy)
                 * Numerics::interpolate1D(m_field->getEnergy(),
@@ -294,7 +295,9 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
                 comEnergy = comEnergyMin + G4UniformRand()
                     * (comEnergyMax - comEnergyMin);
             } while (comEnergy > centreOfMassEnergy(dynamicEnergy,
-                photonEnergy, maxTheta));
+                photonEnergy, maxTheta) || comEnergy
+                    < centreOfMassEnergy(dynamicEnergy, photonEnergy,
+                        minTheta));
             double photonTheta = centreOfMassTheta(comEnergy, dynamicEnergy,
                 photonEnergy);
             photonPhi = minPhi + G4UniformRand() * (maxPhi - minPhi);
