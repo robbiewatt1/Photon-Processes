@@ -4,7 +4,6 @@
 
 Laser::Laser(double energy, double energyDensity, Vector<double> direction)
 {
-
     // check that Direction is a three vecotr
     if (direction.size() != 3)
     {
