@@ -31,14 +31,15 @@ BlackBody::BlackBody(double temp, double energyMin, double energyMax,
 BlackBody::~BlackBody()
 {
 }
-const Vector<double>& BlackBody::getPhi() const
+
+const Vector<double>& BlackBody::getPhi(int blockID)
 {
     std::cerr << "Error: BlackBody is isotropic and should not call getPhi()."
         << std::endl;
     exit(1);
 }
 
-const Matrix<double>& BlackBody::getAngleDensity(int blockID) const
+const Matrix<double>& BlackBody::getAngleDensity(int blockID)
 {
     std::cerr << "Error: BlackBody is isotropic and should not call"
         "getAngleDensity()." << std::endl;

@@ -22,6 +22,17 @@ m_fileName(fileName)
     }
     m_angleRes = m_theta.size();
 
+    // Set dimensions and if isotropic
+    if(m_angleRes == 1)
+    {
+        m_dims = 1;
+        m_isIsotropic = true;
+    } else
+    {
+        m_dims = 3;
+        m_isIsotropic = false;
+    }
+
 
     H5::Group* group = new H5::Group(file->openGroup("/AngleDensity"));
     hsize_t blocks;

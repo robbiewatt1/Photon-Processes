@@ -19,13 +19,14 @@ Gaussian::Gaussian(double meanEnergy, double sigEnergy, double density,
 
 
     // If no min / max provided, use 4 s. d. from mean
-    if (energyMin == -1)
+    if (energyMin < 0)
     {
         energyMin = meanEnergy - 4.0 * sigEnergy;
+        energyMin = energyMin < 0 ? 0 : energyMin;
     }
-    if (energyMax == -1)
+    if (energyMax < 0)
     {
-        energyMin = energyMax + 4.0 * sigEnergy;
+        energyMax = meanEnergy + 4.0 * sigEnergy;
     }
 
     double energyDelta = (energyMax - energyMin) / m_energyRes;
@@ -42,7 +43,7 @@ Gaussian::Gaussian(double meanEnergy, double sigEnergy, double density,
     {
         m_energyDensity[i] = 1.0 / (sigEnergy * std::sqrt(pi))
             * std::exp(-(m_energy[i] - meanEnergy) * (m_energy[i]
-                - meanEnergy) / (sigEnergy * sigEnergy)); 
+                - meanEnergy) / (sigEnergy * sigEnergy));
     }
 
     m_nBlocks = 1;

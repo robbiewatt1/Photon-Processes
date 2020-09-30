@@ -88,10 +88,9 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
     double rotationAngle = particleDirection.angle(G4ThreeVector(0, 0, 1));
     m_rotaion = G4RotationMatrix(rotationAxis,
             rotationAngle);
-
     /* Check if max (head on) COM is too low */
     double comMax = centreOfMassEnergy(dynamicEnergy,
-        *m_field->getEnergy().end(), *m_field->getTheta().end());
+        *m_field->getEnergy().end(), *m_field->getTheta(blockID).end());
     if(comMax < m_comMin) return 1e99;
 
 #ifdef USEGP
@@ -127,19 +126,19 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
             for (int j = 0; j < m_field->getAngleRes(); j++)
             {
                 double comEnergy = centreOfMassEnergy(dynamicEnergy,
-                    m_field->getEnergy()[i], m_field->getTheta()[j]);
+                    m_field->getEnergy()[i], m_field->getTheta(blockID)[j]);
                 if (comEnergy > m_comMin)
                 {
                     thetaInt[j] = crossSection(comEnergy)
-                        * (1.0 - std::cos(m_field->getTheta()[j]))
-                        * std::sin(m_field->getTheta()[j]) / 2.0;
+                        * (1.0 - std::cos(m_field->getTheta(blockID)[j]))
+                        * std::sin(m_field->getTheta(blockID)[j]) / 2.0;
                 } else
                 {
                     thetaInt[j] = 0;
                 }
             }
             energyInt[i] = m_field->getEnergyDensity()[i]
-                * Numerics::simpsons(m_field->getTheta(), thetaInt);
+                * Numerics::simpsons(m_field->getTheta(blockID), thetaInt);
         }
         meanPath = 1.0 / (classic_electr_radius * classic_electr_radius
             * Numerics::simpsons(m_field->getEnergy(), energyInt));
@@ -157,8 +156,8 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                 // Integrate over phi
                 for (int k = 0; k < m_field->getAngleRes(); k++)
                 {
-                    double angleIn[] = {m_field->getTheta()[j],
-                        m_field->getPhi()[k]};
+                    double angleIn[] = {m_field->getTheta(blockID)[j],
+                        m_field->getPhi(blockID)[k]};
                     double angleOut[2];
                     rotateThetaPhi(angleIn, angleOut, m_rotaion);
                     double comEnergy = centreOfMassEnergy(dynamicEnergy,
@@ -173,10 +172,10 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
                         phiInt[k] = 0;
                     }
                 }
-                thetaInt[j] = Numerics::simpsons(m_field->getPhi(), phiInt);
+                thetaInt[j] = Numerics::simpsons(m_field->getPhi(blockID), phiInt);
             }
             energyInt[i] = m_field->getEnergyDensity()[i]
-                * Numerics::simpsons(m_field->getTheta(), thetaInt);
+                * Numerics::simpsons(m_field->getTheta(blockID), thetaInt);
         }
         meanPath = 1.0 / (classic_electr_radius * classic_electr_radius
             * Numerics::simpsons(m_field->getEnergy(), energyInt));
@@ -251,8 +250,8 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
             {
                 for (int k = 0; k < m_field->getAngleRes(); k++) // loop phi
                 {
-                    double angleIn[] = {m_field->getTheta()[j],
-                        m_field->getPhi()[k]};
+                    double angleIn[] = {m_field->getTheta(blockID)[j],
+                        m_field->getPhi(blockID)[k]};
                     double angleOut[2];
                     rotateThetaPhi(angleIn, angleOut, m_rotaion);
                     double comEnergy = centreOfMassEnergy(dynamicEnergy,
@@ -286,14 +285,24 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
         double comEnergyMax = centreOfMassEnergy(dynamicEnergy,
             *m_field->getEnergy().end(), maxTheta);
         double density, randDensity;
+
         do
         {   // While random density is too large
             do
             {   // While s, e combination not possible
                 photonEnergy = photonEnergyMin + G4UniformRand()
                         * (*m_field->getEnergy().end() - photonEnergyMin);
-                comEnergy = comEnergyMin + G4UniformRand()
-                    * (comEnergyMax - comEnergyMin);
+
+                // Check if point/laser 
+                if (m_field->getAngleRes() == 1)
+                {
+                    comEnergy = centreOfMassEnergy(dynamicEnergy, photonEnergy,
+                        maxTheta);
+                } else
+                {
+                    comEnergy = comEnergyMin + G4UniformRand()
+                        * (comEnergyMax - comEnergyMin);
+                }
             } while (comEnergy > centreOfMassEnergy(dynamicEnergy,
                 photonEnergy, maxTheta) || comEnergy
                     < centreOfMassEnergy(dynamicEnergy, photonEnergy,
@@ -307,8 +316,8 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
             density = crossSection(comEnergy)
                 * Numerics::interpolate1D(m_field->getEnergy(),
                     m_field->getEnergyDensity(), photonEnergy)
-                * Numerics::interpolate2D(m_field->getTheta(),
-                    m_field->getPhi(),
+                * Numerics::interpolate2D(m_field->getTheta(blockID),
+                    m_field->getPhi(blockID),
                     m_field->getAngleDensity(blockID), angleOut)
                 * (1.0 - std::cos(angleOut[0]));
             randDensity = G4UniformRand() * maxDensity;

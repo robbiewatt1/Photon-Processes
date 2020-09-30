@@ -26,11 +26,11 @@ public:
     virtual const Vector<double>& getEnergyDensity() const {
         return m_energyDensity;}
 
-    virtual const Vector<double>& getTheta() const {return m_theta;}
+    virtual const Vector<double>& getTheta(int blockID) {return m_theta;}
 
-    virtual const Vector<double>& getPhi() const {return m_phi;}
+    virtual const Vector<double>& getPhi(int blockID) {return m_phi;}
 
-    virtual const Matrix<double>& getAngleDensity(int blockID) const
+    virtual const Matrix<double>& getAngleDensity(int blockID)
         {return m_angleDensity[blockID];}
 
     virtual int getNumBlocks() const {return m_nBlocks;} 

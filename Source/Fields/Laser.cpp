@@ -13,7 +13,7 @@ Laser::Laser(double energy, double energyDensity, Vector<double> direction)
     double theta = std::acos(direction[2] / std::sqrt(direction[0] *
         direction[0] + direction[1] * direction[1] + direction[2]
         * direction[2]));
-    double phi = std::atan2(direction[1], (direction[1] +1e-99));
+    double phi = std::atan2(direction[1], (direction[0] + 1e-99));
 
     m_nBlocks = 1;
     m_energyRes = 1;

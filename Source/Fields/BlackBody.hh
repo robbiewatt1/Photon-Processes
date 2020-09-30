@@ -26,10 +26,10 @@ public:
 
     /* Override to give warnings as BB doesnt return
        phi or have an angular density */
-    const Vector<double>& getPhi() const override;
+    const Vector<double>& getPhi(int blockID) override;
 
     /* Override to give warnings as BB doesnt return
        an angular density */
-    const Matrix<double>& getAngleDensity(int blockID) const override;
+    const Matrix<double>& getAngleDensity(int blockID) override;
 };
 #endif
