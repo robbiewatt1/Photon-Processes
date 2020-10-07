@@ -1,9 +1,9 @@
 #include "PointSource.hh"
+#include "G4PhysicalConstants.hh"
 #include <cmath>
 
-PointSource::PointSource(std::string fileName, Vector<double> res,
-    Vector<double> extent):
-m_fileName(fileName)
+PointSource::PointSource(Vector<double> res,
+    Vector<double> extent)
 {
     // check that Direction is a three vecotr
     if (res.size() != 3 || extent.size() != 3)
@@ -35,17 +35,50 @@ m_fileName(fileName)
             }
         }
     }
-
-    // Load energy / density
-    m_file = new H5::H5File(m_fileName, H5F_ACC_RDWR);
-    m_energy.open(fileName, "/Energy/Axis");
-    m_energyDensity.open(fileName, "/Energy/Spectrum");
-    m_energyRes = m_energy.size();
     m_angleRes = 1;
 }
 
 PointSource::~PointSource()
 {
+}
+
+void PointSource::setSpectrumGaussian(double meanEnergy, double sigEnergy,
+    double density, int energyRes, double energyMin, double energyMax)
+{
+    m_energyRes = energyRes;
+    m_energy  = Vector<double>(m_energyRes);
+    m_energyDensity = Vector<double>(m_energyRes);
+
+    if (energyMin < 0)
+    {
+        energyMin = meanEnergy - 4.0 * sigEnergy;
+        energyMin = energyMin < 0 ? 0 : energyMin;
+    }
+    if (energyMax < 0)
+    {
+        energyMax = meanEnergy + 4.0 * sigEnergy;
+    }
+
+    double energyDelta = (energyMax - energyMin) / m_energyRes;
+    for (int i = 0; i < m_energyRes; i++) {m_energy[i] = i * energyDelta
+            + energyMin;}
+
+    m_energyDensity = Vector<double>(m_energyRes);
+    for (int i = 0; i < m_energyRes; ++i)
+    {
+        m_energyDensity[i] = density / (sigEnergy * std::sqrt(pi))
+            * std::exp(-(m_energy[i] - meanEnergy) * (m_energy[i]
+                - meanEnergy) / (sigEnergy * sigEnergy));
+    }
+
+}
+
+void PointSource::setSpectrumFile(std::string fileName)
+{
+    m_file = new H5::H5File(fileName, H5F_ACC_RDWR);
+    m_energy.open(fileName, "/Energy/Axis");
+    m_energyDensity.open(fileName, "/Energy/Spectrum");
+    m_energyRes = m_energy.size();
 }
 
 const Matrix<double>& PointSource::getAngleDensity(int blockID)

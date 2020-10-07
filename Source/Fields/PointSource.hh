@@ -9,10 +9,15 @@ class PointSource: public PhotonField
 public:
     /* Constructor of class.file should have energy / density data in 
     MeV / 1 / (MeV mm^3) taken at 1mm above point source */
-    PointSource(std::string fileName, Vector<double> res,
-        Vector<double> extent);
+    PointSource(Vector<double> res, Vector<double> extent);
     
     ~PointSource();
+
+    void setSpectrumGaussian(double meanEnergy, double sigEnergy,
+        double density, int energyRes, double energyMin = -1,
+        double energyMax = -1);
+
+    void setSpectrumFile(std::string fileName);
 
     /* Black-body fields are isotroipic */ 
     bool isIsotropic() const override {return false;}
@@ -29,7 +34,6 @@ public:
 
 
 public:
-    std::string m_fileName;
     H5::H5File* m_file;
     Vector<double> m_sourceDistance2;
     Vector<double> m_sourceTheta;

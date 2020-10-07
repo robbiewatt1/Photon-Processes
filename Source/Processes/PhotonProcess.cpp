@@ -193,6 +193,7 @@ G4double PhotonProcess::GetMeanFreePath(const G4Track& track, G4double,
         }
     }
 #endif
+    //std::cout << meanPath / m_multiplier << std::endl;
     return meanPath / m_multiplier;
 }
 
