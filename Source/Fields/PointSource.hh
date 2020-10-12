@@ -9,7 +9,7 @@ class PointSource: public PhotonField
 public:
     /* Constructor of class.file should have energy / density data in 
     MeV / 1 / (MeV mm^3) taken at 1mm above point source */
-    PointSource(Vector<double> res, Vector<double> extent);
+    PointSource(const Vector<double>& res, const Vector<double>& extent);
     
     ~PointSource();
 
@@ -38,6 +38,5 @@ public:
     Vector<double> m_sourceDistance2;
     Vector<double> m_sourceTheta;
     Vector<double> m_sourcePhi;
-
 };
 #endif

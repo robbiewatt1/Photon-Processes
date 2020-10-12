@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
-find_package(Geant4 REQUIRED)
+find_package(Geant4 REQUIRED ui_all)
 find_package(Eigen3 3.0.1 REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
@@ -31,6 +31,7 @@ file(GLOB data  ${CMAKE_CURRENT_SOURCE_DIR}/DataTables/*.h5)
 file(GLOB bin  ${CMAKE_CURRENT_SOURCE_DIR}/Photon-Process.sh)
 
 
+include(${Geant4_USE_FILE})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Source/Tools
 		    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Processes
 		    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Fields

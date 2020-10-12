@@ -140,8 +140,9 @@ class Vector
 
             if(rank != 1)
             {
-                std::cerr << "Error: Data set " << dataName << " has rank: " << rank
-                    << ". This cannot be opend as a Vector." << std::endl;
+                std::cerr << "Error: Data set " << dataName << " has rank: "
+                    << rank << ". This cannot be opend as a Vector."
+                    << std::endl;
                 exit(1);
             }
             hsize_t dims[1];
@@ -154,6 +155,7 @@ class Vector
 
             dataset.read(m_data, datatype, mSpace, dataspace);
 
+            file->close();
             delete file;
 
         }

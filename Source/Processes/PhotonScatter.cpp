@@ -5,6 +5,10 @@
 #include "G4PhysicalConstants.hh"
 #include "G4LorentzVector.hh"
 #include <sys/stat.h>
+#include "G4AutoLock.hh"
+
+namespace { G4Mutex hdf5Mutex = G4MUTEX_INITIALIZER; }
+
 
 PhotonScatter::PhotonScatter(PhotonField* field, double comMin):
 PhotonProcess(field, comMin, "PhotonScatter")
@@ -151,6 +155,8 @@ double PhotonScatter::centreOfMassTheta(double comEnergy,
 
 void PhotonScatter::loadCrossSection()
 {
+    G4AutoLock lock(&hdf5Mutex);
+
     std::string fileName = theProcessName + "_total.h5";
     // Check if new file exisits in current dir
     struct stat buffer;

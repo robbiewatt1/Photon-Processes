@@ -180,6 +180,7 @@ class Matrix
             m_nColumn = dims[1];
             H5::DataType datatype = H5Dget_type(dataset. getId());
             dataset.read(m_data, datatype, mSpace, dataspace);
+            file->close();
             delete file;
         }
         

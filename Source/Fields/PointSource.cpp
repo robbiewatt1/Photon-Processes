@@ -1,9 +1,15 @@
 #include "PointSource.hh"
 #include "G4PhysicalConstants.hh"
 #include <cmath>
+#include "G4Threading.hh"
+#include <stdlib.h>
 
-PointSource::PointSource(Vector<double> res,
-    Vector<double> extent)
+#include "G4AutoLock.hh"
+namespace { G4Mutex hdf5Mutex = G4MUTEX_INITIALIZER; }
+
+
+PointSource::PointSource(const Vector<double>& res,
+    const Vector<double>& extent)
 {
     // check that Direction is a three vecotr
     if (res.size() != 3 || extent.size() != 3)
@@ -70,11 +76,12 @@ void PointSource::setSpectrumGaussian(double meanEnergy, double sigEnergy,
             * std::exp(-(m_energy[i] - meanEnergy) * (m_energy[i]
                 - meanEnergy) / (sigEnergy * sigEnergy));
     }
-
 }
 
 void PointSource::setSpectrumFile(std::string fileName)
 {
+    G4AutoLock lock(&hdf5Mutex);
+
     m_file = new H5::H5File(fileName, H5F_ACC_RDWR);
     m_energy.open(fileName, "/Energy/Axis");
     m_energyDensity.open(fileName, "/Energy/Spectrum");

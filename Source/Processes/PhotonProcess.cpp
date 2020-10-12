@@ -1,10 +1,12 @@
+#include <sys/stat.h>
+#include <fstream>
 #include "PhotonProcess.hh"
 #include "Numerics.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
-#include <sys/stat.h>
+#include "G4AutoLock.hh"
 
-#include<fstream>
+namespace { G4Mutex hdf5Mutex = G4MUTEX_INITIALIZER; }
 
 PhotonProcess::PhotonProcess(PhotonField* field, double comMin,
     const G4String& name, G4ProcessType type):
@@ -255,7 +257,7 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
                         m_field->getPhi(blockID)[k]};
                     double angleOut[2];
                     rotateThetaPhi(angleIn, angleOut, m_rotaion);
-                    double comEnergy = centreOfMassEnergy(dynamicEnergy,
+                    comEnergy = centreOfMassEnergy(dynamicEnergy,
                         m_field->getEnergy()[i], angleOut[0]);
                     currentDensity = m_field->getAngleDensity(blockID)[j][k]
                         * crossSection(comEnergy)
@@ -286,7 +288,6 @@ void PhotonProcess::samplePhotonField(int blockID, double dynamicEnergy,
         double comEnergyMax = centreOfMassEnergy(dynamicEnergy,
             *m_field->getEnergy().end(), maxTheta);
         double density, randDensity;
-
         do
         {   // While random density is too large
             do
@@ -331,8 +332,10 @@ double PhotonProcess::samplePairAngle(double comEnergy)
     if (comEnergy > *m_invCdfTable.xAxis.end())
     {
         std::cerr << "Warning: s is outside of differential cross-section "
-                      "table limits for " << theProcessName
-                  << ". \nThis may cause a crash!" << std::endl;
+                      "table limits for " << theProcessName << "\n"
+                  << "s: " << comEnergy << ".  Table max: "
+                  << *m_invCdfTable.xAxis.end() << "\n"
+                  << "This may cause a crash!" << std::endl;
     }
     double queryPoint[] = {comEnergy, G4UniformRand()};
     return Numerics::interpolate2D(m_invCdfTable.xAxis, m_invCdfTable.yAxis,
@@ -352,8 +355,10 @@ void PhotonProcess::rotateThetaPhi(double angleIn[2], double angleOut[2],
 
 void PhotonProcess::loadDiffCrossSection()
 {
+    G4AutoLock lock(&hdf5Mutex);
     std::string fileName = theProcessName + "_diff.h5";
     // Check if new file exisits in current dir
+
     struct stat buffer;
     if (stat (fileName.c_str(), &buffer) == 0)
     {
