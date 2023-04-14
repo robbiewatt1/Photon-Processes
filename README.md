@@ -6,6 +6,9 @@ This package contains a set of processes involving photons (Breit-Wheeler,
 elastic photon-photon scattering, Compton-scattering) allowing photon 
 collision experiments to be modelled within the Geant4 framework.
 
+[![DOI](https://zenodo.org/badge/222994172.svg)](https://zenodo.org/badge/latestdoi/222994172)
+
+
 ## Installing
 
 Before installing the package, make sure you have the following libraries 
