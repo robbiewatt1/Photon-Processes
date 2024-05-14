@@ -46,7 +46,7 @@ tables can be found:
 All the processes in the package inherit from the base class 
 G4VDiscreteProcess. Therefore, they can be added to the physics list in the 
 standard way. The following is an example of how to add the Breit-Wheeler 
-process, with a black body radiation field at 300keV:
+process, with a black body radiation field at 300eV:
 ```cpp
 BlackBody* field = new BlackBody(0.0003, 0.00003, 0.006 , 100, 100);
 BreitWheeler* m_breitWheeler = new BreitWheeler(field);
